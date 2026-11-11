@@ -87,16 +87,18 @@
 #### 生成步驟：
 1. 確認本機已安裝 Python 3.8+ 與可選之 ffmpeg。
 2. 開啟終端機（PowerShell 或 CMD），安裝微軟 Edge-TTS 函式庫：
-   ```bash
+
+  ```bash
    pip install edge-tts
 
-```
+  ```
 
 3. 於 KanaVox 根目錄下執行生成腳本：
-```bash
+
+  ```bash
 python generate_audio.py
 
-```
+  ```
 
 
 4. 腳本將自動合成 101 個假名单音並透過 ffmpeg 消除頭尾多餘靜音，輸出至 `./Audio` 目錄。
