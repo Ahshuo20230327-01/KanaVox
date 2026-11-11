@@ -1,0 +1,475 @@
+<Window Background="#1E1E2E" FontFamily="Yu Gothic UI, Meiryo, Microsoft JhengHei UI" Foreground="#CDD6F4" Height="1220" MinHeight="780" MinWidth="1050" PreviewKeyDown="Window_PreviewKeyDown" Title="KanaVox - 五十音與 AI 日語發音學習工作台" Width="1360" WindowStartupLocation="CenterScreen" x:Class="KanaVox.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Window.Resources>
+        <!-- 五十音矩陣按鈕樣式 -->
+        <Style TargetType="Button" x:Key="KanaButtonStyle">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Background" Value="#313244"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="4" x:Name="border">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="#45475A"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#89B4FA"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="#89B4FA"/>
+                                <Setter Property="Foreground" Value="#11111B"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" TargetName="border" Value="#181825"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#24273A"/>
+                                <Setter Property="Foreground" Value="#45475A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 控制按鈕通用樣式 -->
+        <Style TargetType="Button" x:Key="ActionBtnStyle">
+            <Setter Property="Background" Value="#45475A"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ================= 頂部控制列 ================= -->
+        <Border Background="#181825" CornerRadius="8" Grid.Row="0" Margin="0,0,0,12" Padding="14,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock FontWeight="Bold" Margin="0,0,6,0" Text="字體：" VerticalAlignment="Center"/>
+                    <RadioButton Checked="DisplayMode_Changed" Content="平假名 (あ)" Foreground="#CDD6F4" IsChecked="True" Margin="0,0,10,0" VerticalAlignment="Center" x:Name="RbHiragana"/>
+                    <RadioButton Checked="DisplayMode_Changed" Content="片假名 (ア)" Foreground="#CDD6F4" Margin="0,0,10,0" VerticalAlignment="Center" x:Name="RbKatakana"/>
+                    <RadioButton Checked="DisplayMode_Changed" Content="羅馬字 (a)" Foreground="#CDD6F4" Margin="0,0,12,0" VerticalAlignment="Center" x:Name="RbRomaji"/>
+
+                    <Border Background="#45475A" Height="18" Margin="2,0,10,0" Width="1"/>
+
+                    <CheckBox Checked="DisplayMode_Changed" Content="顯示輔助拼音" Foreground="#A6ADC8" IsChecked="True" Margin="0,0,10,0" Unchecked="DisplayMode_Changed" VerticalAlignment="Center" x:Name="ChkShowSubText"/>
+
+                    <CheckBox Checked="ChkMaskSubText_Changed" Content="🙈 遮住小字 (點擊翻開)" FontWeight="SemiBold" Foreground="#F9E2AF" Margin="0,0,10,0" ToolTip="逼自己先回想讀音，點擊按鈕發音的同時才翻開下方小字核對" Unchecked="ChkMaskSubText_Changed" VerticalAlignment="Center" x:Name="ChkMaskSubText"/>
+
+                    <CheckBox Checked="DisplayMode_Changed" Content="顯示漢字字源 (安→あ)" FontWeight="SemiBold" Foreground="#89DCEB" IsChecked="True" Margin="0,0,10,0" ToolTip="在按鈕右上角顯示假名的演變老祖宗漢字，用漢字常識直接秒記字形" Unchecked="DisplayMode_Changed" VerticalAlignment="Center" x:Name="ChkShowOrigin"/>
+
+                    <Button Background="#313244" Click="BtnShuffleGrid_Click" Content="🔀 打亂 50 音順序" FontWeight="Bold" Foreground="#FAB387" Padding="10,4" Style="{StaticResource ActionBtnStyle}" ToolTip="隨機打亂五十音格子位置，破除『靠表格位置推算讀音』的座標依賴" x:Name="BtnShuffleGrid"/>
+                </WrapPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Margin="0,0,4,0" Text="語速：" VerticalAlignment="Center"/>
+                    <Slider IsSnapToTickEnabled="True" Maximum="6" Minimum="-6" TickFrequency="1" Value="0" ValueChanged="SliderRate_ValueChanged" VerticalAlignment="Center" Width="85" x:Name="SliderRate"/>
+                    <TextBlock Margin="2,0,12,0" Text="0" TextAlignment="Center" VerticalAlignment="Center" Width="20" x:Name="TxtRateVal"/>
+
+                    <TextBlock Margin="0,0,4,0" Text="音量：" VerticalAlignment="Center"/>
+                    <Slider Maximum="100" Minimum="0" Value="100" ValueChanged="SliderVolume_ValueChanged" VerticalAlignment="Center" Width="80" x:Name="SliderVolume"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ================= 主體左右分割區 ================= -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.18*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左側：五十音點播與特訓分頁 -->
+            <Border Background="#181825" CornerRadius="8" Grid.Column="0" Padding="10">
+                <TabControl Background="Transparent" BorderThickness="0" x:Name="MainTabControl">
+                    <TabItem FontSize="13" Header=" 清音 (46音) ">
+                        <ScrollViewer Margin="0,8,0,0" VerticalScrollBarVisibility="Auto">
+                            <UniformGrid Columns="5" x:Name="GridSeion"/>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem FontSize="13" Header=" 濁音 / 半濁音 ">
+                        <ScrollViewer Margin="0,8,0,0" VerticalScrollBarVisibility="Auto">
+                            <UniformGrid Columns="5" x:Name="GridDakuon"/>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem FontSize="13" Header=" 拗音 (複合音) ">
+                        <ScrollViewer Margin="0,8,0,0" VerticalScrollBarVisibility="Auto">
+                            <UniformGrid Columns="3" x:Name="GridYoon"/>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- 第 4 分頁：按行分段鎖定極速閃卡 -->
+                    <TabItem FontSize="13" Header=" ⚡ 按行極速閃卡 ">
+                        <Grid Margin="6,8,6,6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Background="#24273A" CornerRadius="6" Grid.Row="0" Margin="0,0,0,8" Padding="12,8">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="12.5" FontWeight="SemiBold" Foreground="#F9E2AF" Grid.Column="0" Text="🎯 勾選要鎖定特訓的行數（建議每次鎖定 1～3 行高強度重複）：" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                            <Button Click="BtnBlitzSelectAll_Click" Content="全選清音" FontSize="11.5" Padding="8,3" Style="{StaticResource ActionBtnStyle}"/>
+                                            <Button Click="BtnBlitzSelectHard_Click" Content="專攻後半 (な~わ)" FontSize="11.5" Padding="8,3" Style="{StaticResource ActionBtnStyle}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <WrapPanel Orientation="Horizontal" x:Name="WrapBlitzRows"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#24273A" CornerRadius="6" Grid.Row="1" Margin="0,0,0,8" Padding="12,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Foreground="#A6ADC8" Margin="0,0,4,0" Text="字體：" VerticalAlignment="Center"/>
+                                        <ComboBox SelectedIndex="0" SelectionChanged="BlitzSetting_Changed" Width="135" x:Name="CmbBlitzScript">
+                                            <ComboBoxItem Content="平假名特訓 (あ)"/>
+                                            <ComboBoxItem Content="片假名特訓 (ア)"/>
+                                            <ComboBoxItem Content="平/片隨機混合"/>
+                                        </ComboBox>
+
+                                        <Border Background="#45475A" Height="16" Margin="10,0,10,0" Width="1"/>
+
+                                        <CheckBox Checked="KeypadMode_Changed" Content="⌨️ 顯示滑鼠小鍵盤" FontWeight="SemiBold" Foreground="#89DCEB" IsChecked="True" Margin="0,0,8,0" Unchecked="KeypadMode_Changed" VerticalAlignment="Center" x:Name="ChkShowOnScreenKeypad"/>
+
+                                        <ComboBox SelectedIndex="0" SelectionChanged="KeypadLayout_Changed" ToolTip="切換 A~Z 字母順序或傳統鍵盤 QWERTY 排列" Width="135" x:Name="CmbKeypadLayout">
+                                            <ComboBoxItem Content="A ~ Z 字母順序"/>
+                                            <ComboBoxItem Content="傳統 QWERTY 排列"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <TextBlock FontSize="12" FontWeight="Bold" Foreground="#A6E3A1" Grid.Column="2" Text="完成：0 題 | 平均：-- 秒 | 🔥 反射：0 連擊" VerticalAlignment="Center" x:Name="TxtBlitzStats"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Background="#313244" CornerRadius="10" Grid.Row="2" Padding="14,10">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock FontSize="12.5" Foreground="#A6ADC8" HorizontalAlignment="Center" Margin="0,0,0,8" Text="【な行】可用實體鍵盤直接敲擊，或用滑鼠點選下方小鍵盤" x:Name="TxtBlitzRowHint"/>
+
+                                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,10" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Border Background="#1E1E2E" BorderBrush="#89B4FA" BorderThickness="2" CornerRadius="12" Height="140" Margin="0,0,18,0" Width="210" x:Name="BorderBlitzCard">
+                                                <Grid>
+                                                    <TextBlock FontSize="12.5" Foreground="#89DCEB" HorizontalAlignment="Right" Margin="0,6,10,0" Text="" VerticalAlignment="Top" x:Name="TxtBlitzOriginHint"/>
+                                                    <TextBlock FontSize="82" FontWeight="Bold" Foreground="#CDD6F4" HorizontalAlignment="Center" Text="ぬ" VerticalAlignment="Center" x:Name="TxtBlitzChar"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock FontSize="12.5" Foreground="#A6ADC8" Margin="0,0,0,6" Text="輸入羅馬拼音（敲對自動發音跳題）："/>
+                                                <TextBox Background="#181825" BorderBrush="#89B4FA" FontSize="22" FontWeight="Bold" Foreground="#F9E2AF" Height="40" InputMethod.IsInputMethodEnabled="False" Margin="0,0,0,10" PreviewKeyDown="TxtBlitzInput_PreviewKeyDown" TextAlignment="Center" TextChanged="TxtBlitzInput_TextChanged" VerticalContentAlignment="Center" Width="190" x:Name="TxtBlitzInput"/>
+
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button Background="#45475A" Click="BtnBlitzReveal_Click" Content="🔊 看提示 (Space)" FontWeight="Bold" Foreground="#F9E2AF" Margin="0,0,6,0" Padding="10,6" Style="{StaticResource ActionBtnStyle}"/>
+                                                    <Button Background="#89B4FA" Click="BtnBlitzNext_Click" Content="⏭ 下一張 (Enter)" FontWeight="Bold" Foreground="#11111B" Margin="0" Padding="10,6" Style="{StaticResource ActionBtnStyle}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <Border Background="#24273A" BorderBrush="#45475A" BorderThickness="1" CornerRadius="8" HorizontalAlignment="Center" Padding="12,10" x:Name="BorderOnScreenKeypad">
+                                            <StackPanel>
+                                                <StackPanel HorizontalAlignment="Center" x:Name="PanelKeypadRows"/>
+                                                <TextBlock FontSize="11.5" Foreground="#A6ADC8" HorizontalAlignment="Center" Margin="0,6,0,0" Text="💡 暗灰色按鍵 (L, Q, V, X) 為日文五十音不會用到的字母。"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Border>
+
+                            <Border Background="#24273A" CornerRadius="6" Grid.Row="3" Margin="0,8,0,0" Padding="12,7">
+                                <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="#89DCEB" HorizontalAlignment="Center" Text="💡 支援實體鍵盤盲打，或直接用滑鼠點選上方小鍵盤拼出假名讀音！" x:Name="TxtBlitzFeedback"/>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- 第 5 分頁：易混淆字形特訓 -->
+                    <TabItem FontSize="13" Header=" ⚠️ 易混淆特訓 ">
+                        <Grid Margin="0,8,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Background="#24273A" CornerRadius="6" Grid.Row="0" Margin="0,0,0,10" Padding="12,8">
+                                <TextBlock FontSize="12.5" Foreground="#F9E2AF" Text="💡 點擊各組假名按鈕可即時聽取發音對照；中央「雙色疊影視窗」將兩字原位重疊（天藍 vs 珊瑚紅），直觀突顯關鍵筆畫差異。" TextWrapping="Wrap"/>
+                            </Border>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="ConfusingListPanel"/>
+                            </ScrollViewer>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- 第 6 分頁：盲聽四選一測驗 -->
+                    <TabItem FontSize="13" Header=" 🎧 盲聽四選一 ">
+                        <Grid Margin="6,10,6,6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Background="#24273A" CornerRadius="6" Grid.Row="0" Margin="0,0,0,12" Padding="12,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Foreground="#A6ADC8" Margin="0,0,6,0" Text="題庫範圍：" VerticalAlignment="Center"/>
+                                        <ComboBox SelectedIndex="0" SelectionChanged="QuizSetting_Changed" Width="135" x:Name="CmbQuizScope">
+                                            <ComboBoxItem Content="清音 (46音)"/>
+                                            <ComboBoxItem Content="濁音 / 半濁音"/>
+                                            <ComboBoxItem Content="拗音 (複合音)"/>
+                                            <ComboBoxItem Content="全範圍綜合 (102音)"/>
+                                        </ComboBox>
+
+                                        <TextBlock Foreground="#A6ADC8" Margin="14,0,6,0" Text="選項顯示：" VerticalAlignment="Center"/>
+                                        <ComboBox SelectedIndex="0" SelectionChanged="QuizSetting_Changed" Width="125" x:Name="CmbQuizDisplay">
+                                            <ComboBoxItem Content="平假名 (あ)"/>
+                                            <ComboBoxItem Content="片假名 (ア)"/>
+                                            <ComboBoxItem Content="羅馬字 (a)"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Background="#313244" CornerRadius="4" Padding="10,4">
+                                            <TextBlock FontSize="12.5" FontWeight="Bold" Foreground="#A6E3A1" Text="答對：0 / 0 (100%)  |  🔥 連勝：0" x:Name="TxtQuizScore"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Border Background="#313244" CornerRadius="8" Grid.Row="1" Margin="0,0,0,14" Padding="20,16">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock FontSize="15" Foreground="#CDD6F4" HorizontalAlignment="Center" Margin="0,0,0,10" Text="請聽取發音，用滑鼠點選或按鍵盤數字鍵 [1] ~ [4] 作答" x:Name="TxtQuizPrompt"/>
+
+                                    <Border Background="#1E1E2E" CornerRadius="8" Height="78" Margin="0,0,0,12" Width="220">
+                                        <TextBlock FontSize="34" FontWeight="Bold" Foreground="#89B4FA" HorizontalAlignment="Center" Text="❓" VerticalAlignment="Center" x:Name="TxtQuizReveal"/>
+                                    </Border>
+
+                                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                        <Button Background="#89B4FA" Click="BtnQuizReplay_Click" Content="🔊 重播發音 (Space)" FontSize="13.5" FontWeight="Bold" Foreground="#11111B" Padding="14,7" Style="{StaticResource ActionBtnStyle}" x:Name="BtnQuizReplay"/>
+                                        <Button Background="#A6E3A1" Click="BtnQuizNext_Click" Content="⏭ 下一題 (Enter)" FontSize="13.5" FontWeight="Bold" Foreground="#11111B" Margin="10,0,0,0" Padding="14,7" Style="{StaticResource ActionBtnStyle}" x:Name="BtnQuizNext"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <UniformGrid Columns="2" Grid.Row="2" Margin="0,0,0,8" Rows="2" x:Name="GridQuizChoices">
+                                <Button Click="QuizChoice_Click" Style="{StaticResource KanaButtonStyle}" x:Name="BtnChoice0"/>
+                                <Button Click="QuizChoice_Click" Style="{StaticResource KanaButtonStyle}" x:Name="BtnChoice1"/>
+                                <Button Click="QuizChoice_Click" Style="{StaticResource KanaButtonStyle}" x:Name="BtnChoice2"/>
+                                <Button Click="QuizChoice_Click" Style="{StaticResource KanaButtonStyle}" x:Name="BtnChoice3"/>
+                            </UniformGrid>
+
+                            <Border Background="#24273A" CornerRadius="6" Grid.Row="3" Padding="12,8">
+                                <TextBlock FontSize="13.5" FontWeight="SemiBold" Foreground="#F9E2AF" HorizontalAlignment="Center" Text="💡 快捷鍵：按 [1]~[4] 選答案，按 [Space] 重播聲音，按 [Enter] 跳下一題！" x:Name="TxtQuizFeedback"/>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+
+            <!-- 右側：情境例句、AI 助教與自由試聽盒 -->
+            <Border Background="#181825" CornerRadius="8" Grid.Column="2" Padding="12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 表頭：情境分類、假名聯動與「🤖 啟用 AI 助教」開關 -->
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock FontSize="16" FontWeight="Bold" Foreground="#89B4FA" Grid.Column="0" Margin="0,0,10,0" Text="情境例句點讀" VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Foreground="#A6ADC8" Margin="0,0,4,0" Text="分類：" VerticalAlignment="Center"/>
+                            <ComboBox SelectedIndex="0" SelectionChanged="CmbCategory_SelectionChanged" Width="130" x:Name="CmbCategory"/>
+                        </StackPanel>
+
+                        <CheckBox Checked="ChkLinkKanaFilter_Changed" Content="假名聯動" Foreground="#F9E2AF" Grid.Column="2" Margin="0,0,10,0" ToolTip="點選五十音時自動過濾出包含該假名的例句" Unchecked="ChkLinkKanaFilter_Changed" VerticalAlignment="Center" x:Name="ChkLinkKanaFilter"/>
+
+                        <CheckBox Checked="ChkEnableOllama_Changed" Content="🤖 啟用 AI 助教" FontWeight="SemiBold" Foreground="#89DCEB" Grid.Column="3" ToolTip="啟用本機 Ollama AI 助教（造句、口訣、振假名解析），需本機已啟動 Ollama 服務" Unchecked="ChkEnableOllama_Changed" VerticalAlignment="Center" x:Name="ChkEnableOllama"/>
+                    </Grid>
+
+                    <!-- AI 助教工具列（預設隱藏，勾選「啟用 AI 助教」後展開） -->
+                    <Border Background="#24273A" CornerRadius="6" Grid.Row="1" Margin="0,0,0,8" Padding="10,8" Visibility="Collapsed" x:Name="BorderAiToolbar">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Background="#A6E3A1" CornerRadius="4" Margin="0,0,8,0" Padding="6,2">
+                                    <TextBlock FontSize="12" FontWeight="Bold" Foreground="#11111B" Text="當前假名：あ (a)" x:Name="TxtSelectedKanaBadge"/>
+                                </Border>
+                                <TextBlock FontSize="12" Foreground="#A6ADC8" Margin="0,0,4,0" Text="模型：" VerticalAlignment="Center"/>
+                                <ComboBox FontSize="12" SelectionChanged="CmbOllamaModel_SelectionChanged" VerticalAlignment="Center" Width="155" x:Name="CmbOllamaModel"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Background="#CBA6F7" Click="BtnAiMnemonic_Click" Content="💡 AI 記憶口訣" FontSize="12" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" x:Name="BtnAiMnemonic"/>
+                                <Button Background="#89DCEB" Click="BtnAiSentence_Click" Content="✨ AI 假名造句" FontSize="12" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" x:Name="BtnAiSentence"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- AI 口訣浮動面板 -->
+                    <Border Background="#313244" BorderBrush="#CBA6F7" BorderThickness="1" CornerRadius="6" Grid.Row="2" Margin="0,0,0,8" Padding="10,8" Visibility="Collapsed" x:Name="BorderMnemonic">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock FontSize="13.5" Foreground="#F5E0DC" Grid.Column="0" LineHeight="20" TextWrapping="Wrap" x:Name="TxtMnemonicContent"/>
+                            <Button Background="Transparent" BorderThickness="0" Click="BtnCloseMnemonic_Click" Content="✕" Cursor="Hand" Foreground="#A6ADC8" Grid.Column="1" Margin="6,0,0,0" VerticalAlignment="Top"/>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="SentenceListPanel"/>
+                    </ScrollViewer>
+
+                    <Border Background="#313244" CornerRadius="6" Grid.Row="4" Margin="0,10,0,0" Padding="10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock FontSize="12.5" Foreground="#A6ADC8" Grid.Row="0" Margin="0,0,0,6" Text="自由日文發音盒（貼上任意日文內容即可由系統即時朗讀）："/>
+
+                            <TextBox AcceptsReturn="True" Background="#1E1E2E" BorderBrush="#45475A" FontSize="15" Foreground="#CDD6F4" Grid.Row="1" Height="50" Padding="6" Text="こんにちは！日本語の五十音を一緒に練習しましょう。" TextWrapping="Wrap" x:Name="TxtCustomTts"/>
+
+                            <StackPanel Grid.Row="2" HorizontalAlignment="Right" Margin="0,8,0,0" Orientation="Horizontal">
+                                <Button Click="BtnStopTts_Click" Content="■ 停止播放 / 停止循環" Style="{StaticResource ActionBtnStyle}"/>
+                                <Button Background="#F9E2AF" Click="BtnAiAnalyzeCustom_Click" Content="🪄 解析為振假名卡片" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" Visibility="Collapsed" x:Name="BtnAiAnalyzeCustom"/>
+                                <Button Background="#89B4FA" Click="BtnSpeakCustom_Click" Content="▶ 直接朗讀內容" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ================= 底部狀態列 ================= -->
+        <Border Background="#11111B" CornerRadius="6" Grid.Row="2" Margin="0,10,0,0" Padding="12,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock FontSize="12" Foreground="#A6ADC8" Grid.Column="0" VerticalAlignment="Center" x:Name="TxtStatusBar"/>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Background="#313244" Click="BtnAudioGuide_Click" Content="🔊 離線音檔說明" FontSize="12" Foreground="#89DCEB" Margin="0,0,8,0" Padding="8,3" Style="{StaticResource ActionBtnStyle}"/>
+                    <Button Click="BtnReloadWav_Click" Content="重新掃描 Audio 資料夾" FontSize="12" Padding="8,3" Style="{StaticResource ActionBtnStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ================= 離線音檔說明 半透明遮罩浮層 (Modal Overlay) ================= -->
+        <Grid Background="#D011111B" Grid.Row="0" Grid.RowSpan="3" Margin="-14" MouseDown="OverlayAudioGuide_MouseDown" Panel.ZIndex="100" Visibility="Collapsed" x:Name="OverlayAudioGuide">
+            <Border Background="#1E1E2E" BorderBrush="#45475A" BorderThickness="1.5" CornerRadius="10" HorizontalAlignment="Center" MouseDown="ModalDialog_MouseDown" Padding="22,18" VerticalAlignment="Center" Width="700">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="25" Color="#000000" Opacity="0.65" ShadowDepth="0"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 標題列與關閉 X 按鈕 -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontSize="20" Margin="0,0,8,0" Text="🔊" VerticalAlignment="Center"/>
+                            <TextBlock FontSize="16" FontWeight="Bold" Foreground="#89B4FA" Text="KanaVox 音訊版權與離線音檔說明" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button Background="Transparent" BorderThickness="0" Click="BtnCloseAudioGuide_Click" Content="✕" Cursor="Hand" FontSize="16" Foreground="#A6ADC8" Grid.Column="1" Padding="6,2"/>
+                    </Grid>
+
+                    <!-- 說明本文（全文字允許自由滑鼠拖曳反白選取複製，已加入 Windows 日文語音前提說明） -->
+                    <TextBox Background="Transparent" BorderThickness="0" FontSize="13.5" Foreground="#CDD6F4" Grid.Row="1" IsReadOnly="True" IsTabStop="False" Margin="0,0,0,12" SelectionBrush="#89B4FA" Text="1. 為什麼 GitHub 發布版本未內建音檔？&#x0a;為了遵守微軟與第三方語音服務之授權條款，公開發布版本不直接打包分發音訊資產。&#x0a;&#x0a;2. 目前運作模式：&#x0a;軟體預設直接調用本機 Windows 系統內建的日文語音引擎（SAPI）即時朗讀。&#x0a;⚠️ 使用前提：需確認 Windows 已安裝「日文語音套件」（非日文語系系統預設未預載；若無聲音，請點擊下方「⚙️ 安裝 Windows 日文語音」前往系統設定，免費新增「日本語」語音）。&#x0a;&#x0a;3. 如何取得 0 延遲高品質離線音檔？&#x0a;專案根目錄已隨附「generate_audio.py」腳本。若您有安裝 Python 與 edge-tts，只需在終端機執行下方指令，即可免費在個人本機生成專屬的 101 個假名單音 WAV 檔：" TextWrapping="Wrap"/>
+
+                    <!-- 終端機風格代碼盒（含獨立複製按鈕） -->
+                    <Border Background="#11111B" BorderBrush="#313244" BorderThickness="1" CornerRadius="6" Grid.Row="2" Margin="0,0,0,14" Padding="12,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Background="Transparent" BorderThickness="0" FontFamily="Consolas, Cascadia Code, Courier New" FontSize="13.5" FontWeight="SemiBold" Foreground="#A6E3A1" Grid.Column="0" IsReadOnly="True" SelectionBrush="#89B4FA" Text="pip install edge-tts&#x0a;python generate_audio.py" VerticalAlignment="Center"/>
+                            <Button Background="#313244" Click="BtnCopyCommand_Click" Content="📋 複製指令" FontSize="12" FontWeight="Bold" Foreground="#CDD6F4" Grid.Column="1" Padding="10,6" Style="{StaticResource ActionBtnStyle}" VerticalAlignment="Center" x:Name="BtnCopyCommand"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 底部提示與動作按鈕（含「⚙️ 安裝 Windows 日文語音」按鈕） -->
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock FontSize="12" Foreground="#A6ADC8" Grid.Column="0" Text="💡 生成後點擊右下角「重新掃描 Audio 資料夾」即可立即載入。" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Background="#313244" Click="BtnOpenSpeechSettings_Click" Content="⚙️ 安裝 Windows 日文語音" FontSize="12" FontWeight="Bold" Foreground="#F9E2AF" Padding="12,6" Style="{StaticResource ActionBtnStyle}" ToolTip="直接開啟 Windows 語音設定頁面（點選「新增語音」即可安裝免費日文發音）"/>
+                            <Button Background="#89B4FA" Click="BtnOpenAppFolder_Click" Content="📂 開啟程式目錄" FontWeight="Bold" Foreground="#11111B" Margin="8,0,0,0" Padding="12,6" Style="{StaticResource ActionBtnStyle}"/>
+                            <Button Background="#45475A" Click="BtnCloseAudioGuide_Click" Content="關閉" Foreground="#CDD6F4" Margin="8,0,0,0" Padding="12,6" Style="{StaticResource ActionBtnStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
