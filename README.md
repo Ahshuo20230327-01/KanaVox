@@ -137,7 +137,7 @@ python generate_audio.py
 
 1. 複製（Clone）或下載本專案儲存庫至本機：
 ```bash
-git clone [https://github.com/Ahshuo20230327-01/KanaVox.git](https://github.com/your-username/KanaVox.git)
+git clone https://github.com/Ahshuo20230327-01/KanaVox.git
 cd KanaVox
 
 ```
