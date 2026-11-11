@@ -177,7 +177,6 @@ ollama run qwen2.5:7b
 
 ```text
 KanaVox/
-├── Audio/                     # 存放離線 WAV 音檔（預設為空目錄）
 ├── AudioService.cs            # 音訊核心（WAV 記憶體串流播放與 SAPI TTS 自動降級）
 ├── Build_KanaVox.bat          # 一鍵編譯建置與 Release 打包批次檔
 ├── generate_audio.py          # 基於 edge-tts 的離線音訊生成工具
