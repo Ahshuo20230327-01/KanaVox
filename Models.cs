@@ -9,8 +9,8 @@ using System.Windows;
 
 namespace KanaVox
 {
-    /// <summary>
-    /// 視窗座標、尺寸、最大化狀態與 Ollama AI 開關記憶模型
+/// <summary>
+    /// 視窗座標、尺寸、最大化狀態、AI 助教與 TTS 代理開關記憶模型
     /// </summary>
     public class WindowSettings
     {
@@ -21,6 +21,7 @@ namespace KanaVox
         public bool IsMaximized { get; set; }
         public bool HasSavedPosition { get; set; }
         public bool EnableOllama { get; set; }
+        public bool AutoStartTtsProxy { get; set; }
 
         public WindowSettings()
         {
@@ -30,8 +31,11 @@ namespace KanaVox
             Height = 1220;
             IsMaximized = false;
             HasSavedPosition = false;
-            EnableOllama = false; // 對外發布版預設關閉
+            EnableOllama = false;
+            AutoStartTtsProxy = false;
         }
+
+        // 其餘 Load()、Save() 等方法維持不變...
 
         private static string GetSettingsPath()
         {

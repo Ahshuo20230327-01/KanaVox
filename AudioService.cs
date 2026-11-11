@@ -1,216 +1,335 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Media;
+using System.Net;
 using System.Speech.Synthesis;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace KanaVox
 {
     public class AudioService : IDisposable
     {
-        private SpeechSynthesizer _synth;
-        private SoundPlayer _currentPlayer;
-        private MemoryStream _currentStream;
-        private readonly Dictionary<string, byte[]> _wavCache;
-        private int _userRate;
+        private readonly SpeechSynthesizer _synth;
+        private readonly Dictionary<string, byte[]> _wavCache = new Dictionary<string, byte[]>();
 
-        public int LoadedWavCount
-        {
-            get { return _wavCache != null ? _wavCache.Count : 0; }
-        }
+        private SoundPlayer _activeSentencePlayer;
+        private SoundPlayer _kanaPlayer;
+        private CancellationTokenSource _cts;
+
+        private bool _isLooping = false;
+        private const string ProxyBaseUrl = "http://127.0.0.1:5050";
+        private bool _isProxyAvailable = false;
+        private DateTime _lastProxyCheck = DateTime.MinValue;
 
         public bool HasJapaneseTts { get; private set; }
         public string ActiveVoiceName { get; private set; }
 
-        public AudioService()
+        public int LoadedWavCount
         {
-            _wavCache = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-            _userRate = 0;
-
-            InitializeTts();
-            ReloadWavCache();
+            get { return _wavCache.Count; }
         }
 
-        private void InitializeTts()
+        public bool IsProxyOnline
+        {
+            get { return _isProxyAvailable; }
+        }
+
+        public bool IsLoopingActive
+        {
+            get { return _isLooping; }
+        }
+
+        public AudioService()
+        {
+            _synth = new SpeechSynthesizer();
+            InitializeSapiVoice();
+            ReloadWavCache();
+            Task.Run(new Func<Task<bool>>(CheckProxyHealthAsync));
+        }
+
+        private void InitializeSapiVoice()
         {
             try
             {
-                _synth = new SpeechSynthesizer();
-                HasJapaneseTts = false;
-                ActiveVoiceName = "未安裝日文語音";
+                var voices = _synth.GetInstalledVoices();
+                var jpVoice = voices.FirstOrDefault(v =>
+                    v.Enabled &&
+                    (v.VoiceInfo.Culture.Name.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ||
+                     v.VoiceInfo.Description.IndexOf("Japanese", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     v.VoiceInfo.Name.IndexOf("Haruka", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     v.VoiceInfo.Name.IndexOf("Ayumi", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     v.VoiceInfo.Name.IndexOf("Ichiro", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     v.VoiceInfo.Name.IndexOf("Sayaka", StringComparison.OrdinalIgnoreCase) >= 0));
 
-                foreach (var voice in _synth.GetInstalledVoices())
+                if (jpVoice != null)
                 {
-                    if (!voice.Enabled) continue;
-                    var info = voice.VoiceInfo;
-                    if (info.Culture.Name.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ||
-                        info.Name.IndexOf("Haruka", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        info.Name.IndexOf("Ayumi", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        info.Name.IndexOf("Ichiro", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        info.Name.IndexOf("Japanese", StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        _synth.SelectVoice(info.Name);
-                        HasJapaneseTts = true;
-                        ActiveVoiceName = info.Name;
-                        break;
-                    }
+                    _synth.SelectVoice(jpVoice.VoiceInfo.Name);
+                    HasJapaneseTts = true;
+                    ActiveVoiceName = jpVoice.VoiceInfo.Name;
+                }
+                else
+                {
+                    HasJapaneseTts = false;
+                    ActiveVoiceName = "未偵測到系統日文 SAPI 語音";
                 }
             }
             catch
             {
                 HasJapaneseTts = false;
-                ActiveVoiceName = "TTS 初始化失敗";
+                ActiveVoiceName = "SAPI 初始化失敗";
             }
+        }
+
+        public async Task<bool> CheckProxyHealthAsync()
+        {
+            return await Task.Run(new Func<bool>(() =>
+            {
+                try
+                {
+                    var req = (HttpWebRequest)WebRequest.Create(ProxyBaseUrl + "/health");
+                    req.Timeout = 1200;
+                    req.Method = "GET";
+                    using (var resp = (HttpWebResponse)req.GetResponse())
+                    {
+                        _isProxyAvailable = (resp.StatusCode == HttpStatusCode.OK);
+                    }
+                }
+                catch
+                {
+                    _isProxyAvailable = false;
+                }
+                _lastProxyCheck = DateTime.Now;
+                return _isProxyAvailable;
+            }));
         }
 
         public void ReloadWavCache()
         {
             _wavCache.Clear();
+            string audioDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Audio");
+            if (!Directory.Exists(audioDir)) return;
 
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string audioDir = Path.Combine(baseDir, "Audio");
-
-            if (!Directory.Exists(audioDir))
+            foreach (string file in Directory.GetFiles(audioDir, "*.wav"))
             {
-                audioDir = Path.Combine(baseDir, @"..\..\Audio");
-            }
-            if (!Directory.Exists(audioDir))
-            {
-                audioDir = Path.Combine(Directory.GetCurrentDirectory(), "Audio");
-            }
-
-            if (Directory.Exists(audioDir))
-            {
+                string key = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
                 try
                 {
-                    var files = Directory.GetFiles(audioDir, "*.wav");
-                    foreach (var file in files)
-                    {
-                        string key = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
-                        _wavCache[key] = File.ReadAllBytes(file);
-                    }
+                    byte[] data = File.ReadAllBytes(file);
+                    _wavCache[key] = data;
                 }
                 catch { }
             }
         }
 
-        /// <summary>
-        /// 播放假名發音：優先使用快取的離線 WAV；若無音檔則自動降級回退至系統日文 TTS 朗讀
-        /// </summary>
-        public void PlayKana(KanaItem kana)
+        public void PlayKana(KanaItem item)
         {
-            if (kana == null || kana.IsEmptySlot) return;
+            if (item == null || item.IsEmptySlot) return;
 
-            string key = kana.Romaji != null ? kana.Romaji.ToLowerInvariant() : "";
-
-            // 1. 若有對應的離線 WAV 快取，包裝為 MemoryStream 並以 SoundPlayer 播放
-            if (_wavCache != null && _wavCache.ContainsKey(key))
+            string key = item.Romaji.ToLowerInvariant();
+            byte[] wavData;
+            if (_wavCache.TryGetValue(key, out wavData))
             {
                 try
                 {
-                    StopCurrentPlayer();
-
-                    _currentStream = new MemoryStream(_wavCache[key]);
-                    _currentPlayer = new SoundPlayer(_currentStream);
-                    _currentPlayer.Play();
+                    StopAll();
+                    var ms = new MemoryStream(wavData);
+                    _kanaPlayer = new SoundPlayer(ms);
+                    _kanaPlayer.Play();
                     return;
                 }
                 catch { }
             }
 
-            // 2. 降級回退：若無離線音檔，自動呼叫 Windows 系統日語 TTS 朗讀
-            if (HasJapaneseTts)
-            {
-                SpeakSentence(kana.Hiragana);
-            }
+            SpeakSentence(item.Hiragana);
         }
 
         public void SpeakSentence(string text)
         {
-            if (!HasJapaneseTts || _synth == null || string.IsNullOrWhiteSpace(text)) return;
-            try
-            {
-                _synth.Rate = _userRate;
-                _synth.SpeakAsyncCancelAll();
-                _synth.SpeakAsync(text);
-            }
-            catch { }
+            SpeakSentenceWithRate(text, 0);
+        }
+
+        public void StartLoopSentence(string text, int rate)
+        {
+            StopAll();
+            _isLooping = true;
+            PlaySpeechWorker(text, rate, true);
         }
 
         public void SpeakSentenceWithRate(string text, int rate)
         {
-            if (!HasJapaneseTts || _synth == null || string.IsNullOrWhiteSpace(text)) return;
+            StopAll();
+            PlaySpeechWorker(text, rate, false);
+        }
+
+        private async void PlaySpeechWorker(string text, int rate, bool isLoop)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            _cts = new CancellationTokenSource();
+            var token = _cts.Token;
+
+            await Task.Run(new Func<Task>(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    // 1. 若當前未連線，或距離上次探測超過 10 秒，立即重新驗證連線
+                    if (!_isProxyAvailable || (DateTime.Now - _lastProxyCheck).TotalSeconds > 10)
+                    {
+                        await CheckProxyHealthAsync();
+                    }
+
+                    bool played = false;
+
+                    // 2. 優先嘗試 Edge-TTS 神經網路人聲
+                    if (_isProxyAvailable)
+                    {
+                        byte[] audioData = FetchProxyAudio(text, rate, token);
+                        if (token.IsCancellationRequested) break;
+
+                        if (audioData != null && audioData.Length > 44)
+                        {
+                            try
+                            {
+                                using (var ms = new MemoryStream(audioData))
+                                {
+                                    _activeSentencePlayer = new SoundPlayer(ms);
+                                    _activeSentencePlayer.PlaySync();
+                                }
+                                played = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine("SoundPlayer 播放失敗: " + ex.Message);
+                            }
+                        }
+                    }
+
+                    // 3. 降級至系統 SAPI (完整阻塞至播放完畢)
+                    if (!played && HasJapaneseTts && !token.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            _synth.Rate = Math.Max(-10, Math.Min(10, rate));
+                            _synth.Speak(text);
+                            played = true;
+                        }
+                        catch { }
+                    }
+
+                    if (!isLoop || token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    // 循環模式：整句完整播畢後，靜默停頓 1.2 秒供跟讀
+                    try
+                    {
+                        await Task.Delay(1200, token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                }
+            }), token);
+        }
+
+        private byte[] FetchProxyAudio(string text, int rate, CancellationToken token)
+        {
             try
             {
+                int percent = rate <= -5 ? -40 : (rate * 8);
+                string rateStr = percent >= 0 ? ("+" + percent + "%") : (percent + "%");
+                string url = ProxyBaseUrl + "/tts?text=" + Uri.EscapeDataString(text) + "&rate=" + Uri.EscapeDataString(rateStr);
+
+                var req = (HttpWebRequest)WebRequest.Create(url);
+                req.Timeout = 10000;
+                req.Method = "GET";
+
+                using (var resp = (HttpWebResponse)req.GetResponse())
+                {
+                    if (resp.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            using (var stream = resp.GetResponseStream())
+                            {
+                                if (stream != null)
+                                {
+                                    byte[] buffer = new byte[8192];
+                                    int read;
+                                    while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                                    {
+                                        if (token.IsCancellationRequested) return null;
+                                        ms.Write(buffer, 0, read);
+                                    }
+                                    return ms.ToArray();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("FetchProxyAudio 連線異常: " + ex.Message);
+                _isProxyAvailable = false;
+            }
+            return null;
+        }
+
+        public void StopAll()
+        {
+            try
+            {
+                _isLooping = false;
+
+                if (_cts != null)
+                {
+                    _cts.Cancel();
+                    _cts.Dispose();
+                    _cts = null;
+                }
+
                 _synth.SpeakAsyncCancelAll();
-                _synth.Rate = Math.Max(-10, Math.Min(10, rate));
-                _synth.SpeakAsync(text);
+
+                if (_kanaPlayer != null)
+                {
+                    _kanaPlayer.Stop();
+                    _kanaPlayer.Dispose();
+                    _kanaPlayer = null;
+                }
+
+                if (_activeSentencePlayer != null)
+                {
+                    _activeSentencePlayer.Stop();
+                    _activeSentencePlayer.Dispose();
+                    _activeSentencePlayer = null;
+                }
             }
             catch { }
         }
 
         public void SetRate(int rate)
         {
-            _userRate = Math.Max(-10, Math.Min(10, rate));
-            if (_synth != null)
-            {
-                _synth.Rate = _userRate;
-            }
+            _synth.Rate = Math.Max(-10, Math.Min(10, rate));
         }
 
         public void SetVolume(int volume)
         {
-            if (_synth != null)
-            {
-                _synth.Volume = Math.Max(0, Math.Min(100, volume));
-            }
-        }
-
-        public void StopAll()
-        {
-            StopCurrentPlayer();
-
-            if (_synth != null)
-            {
-                try { _synth.SpeakAsyncCancelAll(); } catch { }
-            }
-        }
-
-        private void StopCurrentPlayer()
-        {
-            if (_currentPlayer != null)
-            {
-                try
-                {
-                    _currentPlayer.Stop();
-                    _currentPlayer.Dispose();
-                }
-                catch { }
-                _currentPlayer = null;
-            }
-
-            if (_currentStream != null)
-            {
-                try
-                {
-                    _currentStream.Dispose();
-                }
-                catch { }
-                _currentStream = null;
-            }
+            _synth.Volume = Math.Max(0, Math.Min(100, volume));
         }
 
         public void Dispose()
         {
             StopAll();
-
             if (_synth != null)
             {
-                try { _synth.Dispose(); } catch { }
-                _synth = null;
+                _synth.Dispose();
             }
-
-            _wavCache.Clear();
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,6 +20,9 @@ namespace KanaVox
         private List<SentenceItem> _allSentences = new List<SentenceItem>();
         private KanaItem _selectedKana;
         private bool _isUiInitialized = false;
+
+        // 本地語音代理 (edge_tts_proxy.py) 處理程序託管
+        private Process _proxyProcess = null;
 
         private bool _isGridShuffled = false;
         private readonly HashSet<KanaItem> _revealedMaskedKana = new HashSet<KanaItem>();
@@ -86,10 +90,15 @@ namespace KanaVox
 
             UpdateStatusBar();
 
-            // 僅在使用者主動啟用 Ollama 時才發起背景連線檢查
             if (ChkEnableOllama.IsChecked == true)
             {
                 InitializeOllamaModelsAsync();
+            }
+
+            // 若使用者啟用了「自動常駐語音代理」，啟動時在背景呼叫
+            if (ChkAutoStartProxy.IsChecked == true)
+            {
+                StartProxyProcess();
             }
         }
 
@@ -114,9 +123,10 @@ namespace KanaVox
                 Height = 1220;
             }
 
-            // 還原 Ollama AI 助教開關狀態與介面可見度
             ChkEnableOllama.IsChecked = settings.EnableOllama;
             UpdateOllamaVisibility(settings.EnableOllama);
+
+            ChkAutoStartProxy.IsChecked = settings.AutoStartTtsProxy;
 
             Loaded += (s, e) =>
             {
@@ -129,11 +139,15 @@ namespace KanaVox
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            // 視窗關閉前徹底結束背景 Python 處理程序與其子程序
+            StopProxyProcess();
+
             var settings = new WindowSettings
             {
                 HasSavedPosition = true,
                 IsMaximized = (WindowState == WindowState.Maximized),
-                EnableOllama = (ChkEnableOllama.IsChecked == true)
+                EnableOllama = (ChkEnableOllama.IsChecked == true),
+                AutoStartTtsProxy = (ChkAutoStartProxy.IsChecked == true)
             };
 
             if (WindowState == WindowState.Maximized)
@@ -153,6 +167,97 @@ namespace KanaVox
 
             settings.Save();
             base.OnClosing(e);
+        }
+
+        // ================= 本地 Edge-TTS 語音代理處理程序管控 =================
+        private void ChkAutoStartProxy_Changed(object sender, RoutedEventArgs e)
+        {
+            if (!_isUiInitialized) return;
+            bool autoStart = ChkAutoStartProxy.IsChecked == true;
+            if (autoStart)
+            {
+                StartProxyProcess();
+                TxtStatusBar.Text = "⚡ 已啟用「自動常駐語音代理」，正在啟動 edge_tts_proxy.py...";
+            }
+            else
+            {
+                StopProxyProcess();
+                TxtStatusBar.Text = "⚡ 已停用自動啟動語音代理，處理程序已結束。";
+                UpdateStatusBar();
+            }
+        }
+
+        private void StartProxyProcess()
+        {
+            try
+            {
+                // 若本機代理已在監聽中，直接更新狀態即可，不重複建立行程
+                if (_audioService.IsProxyOnline)
+                {
+                    UpdateStatusBar();
+                    return;
+                }
+
+                string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "edge_tts_proxy.py");
+                if (!File.Exists(scriptPath))
+                {
+                    TxtStatusBar.Text = "⚠️ 找不到 edge_tts_proxy.py，無法自動啟動語音代理。";
+                    return;
+                }
+
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "python",
+                    Arguments = "edge_tts_proxy.py",
+                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+
+                _proxyProcess = Process.Start(psi);
+
+                // 給予 1.5 秒讓 aiohttp 啟動，隨後自動探測健康狀態並刷新狀態列
+                var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1500) };
+                timer.Tick += (s, e) =>
+                {
+                    timer.Stop();
+                    _audioService.CheckProxyHealthAsync().ContinueWith(t =>
+                    {
+                        Dispatcher.Invoke(new Action(() => UpdateStatusBar()));
+                    });
+                };
+                timer.Start();
+            }
+            catch (Exception ex)
+            {
+                TxtStatusBar.Text = "⚠️ 啟動語音代理失敗: " + ex.Message;
+            }
+        }
+
+        private void StopProxyProcess()
+        {
+            try
+            {
+                if (_proxyProcess != null && !_proxyProcess.HasExited)
+                {
+                    // 呼叫 taskkill 確保 Python 及衍生執行的 ffmpeg 全樹系徹底被終結
+                    var killPsi = new ProcessStartInfo
+                    {
+                        FileName = "taskkill",
+                        Arguments = "/pid " + _proxyProcess.Id + " /f /t",
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    };
+                    using (var killer = Process.Start(killPsi))
+                    {
+                        killer.WaitForExit(2000);
+                    }
+                    _proxyProcess.Dispose();
+                    _proxyProcess = null;
+                }
+            }
+            catch { }
         }
 
         // ================= Ollama 控制與動態顯隱 =================
@@ -1413,9 +1518,9 @@ namespace KanaVox
             return card;
         }
 
-        private void ToggleLoopSentence(string text, Button btn)
+private void ToggleLoopSentence(string text, Button btn)
         {
-            if (_loopingText == text && _loopTimer.IsEnabled)
+            if (_loopingText == text && _audioService.IsLoopingActive)
             {
                 StopLooping();
                 return;
@@ -1428,13 +1533,13 @@ namespace KanaVox
             _activeLoopButton.Foreground = new SolidColorBrush(Color.FromRgb(17, 17, 27));
             _activeLoopButton.Content = "⏹ 循環中";
 
-            _audioService.SpeakSentence(text);
-            _loopTimer.Start();
+            // 啟動依據音訊長度自動接續的動態循環
+            _audioService.StartLoopSentence(text, 0);
         }
 
         private void StopLooping()
         {
-            _loopTimer.Stop();
+            _audioService.StopAll();
             _loopingText = null;
             if (_activeLoopButton != null)
             {
@@ -1754,12 +1859,23 @@ namespace KanaVox
             int customCount = _allSentences.Count(s => s.IsCustom);
             string wavInfo = _audioService.LoadedWavCount > 0
                 ? string.Format("音訊：預載 {0} 個離線 WAV", _audioService.LoadedWavCount)
-                : "音訊：系統即時 TTS 模式（未載入離線音檔）";
+                : "音訊：即時朗讀模式（未載入離線音檔）";
 
             string customInfo = string.Format("自訂例句：{0} 句", customCount);
-            string ttsInfo = _audioService.HasJapaneseTts
-                ? string.Format("TTS：{0}", _audioService.ActiveVoiceName)
-                : "TTS：未偵測到系統日文語音";
+
+            string ttsInfo;
+            if (_audioService.IsProxyOnline)
+            {
+                ttsInfo = "TTS：Edge-TTS 神經網路代理 (在線 / Nanami)";
+            }
+            else if (_audioService.HasJapaneseTts)
+            {
+                ttsInfo = string.Format("TTS：系統 SAPI ({0})", _audioService.ActiveVoiceName);
+            }
+            else
+            {
+                ttsInfo = "TTS：未偵測到任何語音引擎";
+            }
 
             TxtStatusBar.Text = wavInfo + "   |   " + customInfo + "   |   " + ttsInfo;
         }
@@ -1767,6 +1883,7 @@ namespace KanaVox
         protected override void OnClosed(EventArgs e)
         {
             StopLooping();
+            StopProxyProcess();
             _audioService.Dispose();
             base.OnClosed(e);
         }
