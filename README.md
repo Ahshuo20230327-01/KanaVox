@@ -16,7 +16,7 @@
 ---
 
 ## 📥 下載與使用
-1. 前往 [Releases](https://github.com/Ahshuo20230327-01/KanaVox/releases) 下載最新的 `KanaVox-v1.0.0-win-x64.zip`。
+1. 前往 [Releases](https://github.com/Ahshuo20230327-01/KanaVox/releases) 下載最新的 `KanaVox-v1.0.zip`。
 2. 解壓縮後直接執行 `KanaVox.exe` 即可（免安裝）。
 3. **系統需求**：Windows 10 / 11 (64-bit)。系統多數已內建 .NET Framework 4.8。
 
