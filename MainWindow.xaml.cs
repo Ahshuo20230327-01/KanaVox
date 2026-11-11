@@ -191,25 +191,38 @@ namespace KanaVox
         {
             try
             {
-                // 若本機代理已在監聽中，直接更新狀態即可，不重複建立行程
                 if (_audioService.IsProxyOnline)
                 {
                     UpdateStatusBar();
                     return;
                 }
 
-                string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "edge_tts_proxy.py");
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string scriptPath = Path.Combine(baseDir, "edge_tts_proxy.py");
+
+                if (!File.Exists(scriptPath))
+                {
+                    string parentProj = Path.GetFullPath(Path.Combine(baseDir, @"..\.."));
+                    string fallbackPath = Path.Combine(parentProj, "edge_tts_proxy.py");
+                    if (File.Exists(fallbackPath))
+                    {
+                        scriptPath = fallbackPath;
+                    }
+                }
+
                 if (!File.Exists(scriptPath))
                 {
                     TxtStatusBar.Text = "⚠️ 找不到 edge_tts_proxy.py，無法自動啟動語音代理。";
                     return;
                 }
 
+                string workingDir = Path.GetDirectoryName(scriptPath);
+
                 var psi = new ProcessStartInfo
                 {
                     FileName = "python",
-                    Arguments = "edge_tts_proxy.py",
-                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+                    Arguments = "\"" + scriptPath + "\"",
+                    WorkingDirectory = workingDir,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     WindowStyle = ProcessWindowStyle.Hidden
@@ -217,7 +230,6 @@ namespace KanaVox
 
                 _proxyProcess = Process.Start(psi);
 
-                // 給予 1.5 秒讓 aiohttp 啟動，隨後自動探測健康狀態並刷新狀態列
                 var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1500) };
                 timer.Tick += (s, e) =>
                 {
@@ -241,7 +253,6 @@ namespace KanaVox
             {
                 if (_proxyProcess != null && !_proxyProcess.HasExited)
                 {
-                    // 呼叫 taskkill 確保 Python 及衍生執行的 ffmpeg 全樹系徹底被終結
                     var killPsi = new ProcessStartInfo
                     {
                         FileName = "taskkill",
@@ -281,10 +292,26 @@ namespace KanaVox
 
         private void UpdateOllamaVisibility(bool enabled)
         {
+            // 保持工具列始終顯示，讓本地靜態口訣與例句按鈕隨時可用
             if (BorderAiToolbar != null)
-                BorderAiToolbar.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
+                BorderAiToolbar.Visibility = Visibility.Visible;
+
+            if (CmbOllamaModel != null)
+                CmbOllamaModel.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
+
+            // 振假名解析按鈕常時顯示，根據模式自動切換標籤文字
             if (BtnAiAnalyzeCustom != null)
-                BtnAiAnalyzeCustom.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
+            {
+                BtnAiAnalyzeCustom.Visibility = Visibility.Visible;
+                BtnAiAnalyzeCustom.Content = enabled ? "🪄 AI 解析例句" : "🪄 本地解析振假名";
+            }
+
+            if (BtnAiSentence != null)
+                BtnAiSentence.Content = enabled ? "✨ AI 假名造句" : "📖 假名精選例句";
+
+            if (BtnAiMnemonic != null)
+                BtnAiMnemonic.Content = enabled ? "💡 AI 記憶口訣" : "💡 假名字源口訣";
+
             if (!enabled && BorderMnemonic != null)
                 BorderMnemonic.Visibility = Visibility.Collapsed;
         }
@@ -1285,7 +1312,7 @@ namespace KanaVox
             {
                 SentenceListPanel.Children.Add(new TextBlock
                 {
-                    Text = string.Format("目前分類中沒有包含「{0} ({1})」的例句。可點擊上方「✨ AI 假名造句」立即生成！", _selectedKana.Hiragana, _selectedKana.Romaji),
+                    Text = string.Format("目前分類中沒有包含「{0} ({1})」的例句。可點擊上方「📖 假名精選例句」立即載入！", _selectedKana.Hiragana, _selectedKana.Romaji),
                     Foreground = new SolidColorBrush(Color.FromRgb(249, 226, 175)),
                     FontSize = 14,
                     Margin = new Thickness(8, 16, 8, 16),
@@ -1518,7 +1545,7 @@ namespace KanaVox
             return card;
         }
 
-private void ToggleLoopSentence(string text, Button btn)
+        private void ToggleLoopSentence(string text, Button btn)
         {
             if (_loopingText == text && _audioService.IsLoopingActive)
             {
@@ -1533,7 +1560,6 @@ private void ToggleLoopSentence(string text, Button btn)
             _activeLoopButton.Foreground = new SolidColorBrush(Color.FromRgb(17, 17, 27));
             _activeLoopButton.Content = "⏹ 循環中";
 
-            // 啟動依據音訊長度自動接續的動態循環
             _audioService.StartLoopSentence(text, 0);
         }
 
@@ -1574,10 +1600,52 @@ private void ToggleLoopSentence(string text, Button btn)
             }
         }
 
+        // ================= 假名造句 / 精選例句（雙軌模式） =================
         private async void BtnAiSentence_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedKana == null) return;
 
+            bool isOllamaActive = (ChkEnableOllama.IsChecked == true);
+
+            if (!isOllamaActive)
+            {
+                // 1. 本機靜態庫 0 毫秒即時載入
+                var presetList = StaticDataService.GetPresetSentences(_selectedKana);
+                if (presetList != null && presetList.Count > 0)
+                {
+                    int addedCount = 0;
+                    for (int i = presetList.Count - 1; i >= 0; i--)
+                    {
+                        var s = presetList[i];
+                        if (!_allSentences.Any(existing => existing.GetRawJapaneseText() == s.GetRawJapaneseText()))
+                        {
+                            _allSentences.Insert(0, s);
+                            addedCount++;
+                        }
+                    }
+
+                    if (addedCount > 0)
+                    {
+                        KanaRepository.SaveCustomSentences(_allSentences);
+                        InitializeCategories();
+                        CmbCategory.SelectedIndex = 0;
+                        RenderFilteredSentences();
+                        UpdateStatusBar();
+                        TxtStatusBar.Text = string.Format("⚡ 已從本機資料庫即時載入 {0} 句「{1}」的生活例句！", addedCount, _selectedKana.Hiragana);
+                    }
+                    else
+                    {
+                        TxtStatusBar.Text = string.Format("ℹ️ 「{0}」的本機精選例句已存在於清單中。", _selectedKana.Hiragana);
+                    }
+                }
+                else
+                {
+                    TxtStatusBar.Text = string.Format("ℹ️ 本機資料庫暫無「{0}」的獨立預製例句，可勾選上方 AI 助教進行即時生成。", _selectedKana.Hiragana);
+                }
+                return;
+            }
+
+            // 2. 啟用 AI 時，呼叫本機 Ollama 進行推論生成
             BtnAiSentence.IsEnabled = false;
             BtnAiSentence.Content = "⏳ 生成中...";
             TxtStatusBar.Text = string.Format("正在呼叫本機 Ollama ({0}) 生成「{1}」的初學例句...", _ollamaService.CurrentModel, _selectedKana.Hiragana);
@@ -1617,10 +1685,24 @@ private void ToggleLoopSentence(string text, Button btn)
             }
         }
 
+        // ================= 假名記憶口訣（雙軌模式） =================
         private async void BtnAiMnemonic_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedKana == null) return;
 
+            bool isOllamaActive = (ChkEnableOllama.IsChecked == true);
+
+            if (!isOllamaActive)
+            {
+                // 本機靜態庫 0 毫秒即時呈現
+                string staticTip = StaticDataService.GetMnemonic(_selectedKana);
+                BorderMnemonic.Visibility = Visibility.Visible;
+                TxtMnemonicContent.Text = staticTip;
+                TxtStatusBar.Text = string.Format("⚡ 已載入「{0} / {1}」的本機權威字源記憶口訣。", _selectedKana.Hiragana, _selectedKana.Katakana);
+                return;
+            }
+
+            // 啟用 AI 時呼叫 Ollama 推論
             BtnAiMnemonic.IsEnabled = false;
             BtnAiMnemonic.Content = "⏳ 思考中...";
             BorderMnemonic.Visibility = Visibility.Visible;
@@ -1650,13 +1732,57 @@ private void ToggleLoopSentence(string text, Button btn)
             }
         }
 
+        // ================= 自訂句子振假名解析（雙軌模式） =================
         private async void BtnAiAnalyzeCustom_Click(object sender, RoutedEventArgs e)
         {
             string rawText = TxtCustomTts.Text != null ? TxtCustomTts.Text.Trim() : "";
             if (string.IsNullOrEmpty(rawText)) return;
 
+            bool isOllamaActive = (ChkEnableOllama.IsChecked == true);
+
             BtnAiAnalyzeCustom.IsEnabled = false;
             BtnAiAnalyzeCustom.Content = "⏳ 解析中...";
+
+            if (!isOllamaActive)
+            {
+                // 1. 本地形態素分析 (pykakasi / 0ms)
+                TxtStatusBar.Text = "正在透過本地形態素引擎分析漢字振假名與拼音...";
+                try
+                {
+                    var analyzedItem = await StaticDataService.AnalyzeSentenceLocallyAsync(rawText);
+                    if (analyzedItem != null)
+                    {
+                        analyzedItem.IsCustom = true;
+                        _allSentences.Insert(0, analyzedItem);
+
+                        KanaRepository.SaveCustomSentences(_allSentences);
+
+                        InitializeCategories();
+                        CmbCategory.SelectedIndex = 0;
+                        ChkLinkKanaFilter.IsChecked = false;
+                        RenderFilteredSentences();
+                        UpdateStatusBar();
+                        _audioService.SpeakSentence(analyzedItem.GetRawJapaneseText());
+                        TxtStatusBar.Text = "⚡ 已由本地形態素引擎完成精準振假名標音，並儲存至本機！";
+                    }
+                    else
+                    {
+                        TxtStatusBar.Text = "⚠️ 本地解析失敗，請確認本機語音代理 (Port 5050) 已啟動並安裝 pykakasi。";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TxtStatusBar.Text = "⚠️ 本地形態素解析異常: " + ex.Message;
+                }
+                finally
+                {
+                    BtnAiAnalyzeCustom.IsEnabled = true;
+                    BtnAiAnalyzeCustom.Content = "🪄 本地解析振假名";
+                }
+                return;
+            }
+
+            // 2. 啟用 AI 時由本機 Ollama LLM 完整意譯與解析
             TxtStatusBar.Text = string.Format("正在由 Ollama ({0}) 解析自訂句子的漢字振假名與中文翻譯...", _ollamaService.CurrentModel);
 
             try
@@ -1689,7 +1815,7 @@ private void ToggleLoopSentence(string text, Button btn)
             finally
             {
                 BtnAiAnalyzeCustom.IsEnabled = true;
-                BtnAiAnalyzeCustom.Content = "🪄 解析為振假名卡片";
+                BtnAiAnalyzeCustom.Content = "🪄 AI 解析例句";
             }
         }
 
@@ -1808,7 +1934,8 @@ private void ToggleLoopSentence(string text, Button btn)
         {
             try
             {
-                string cmd = "pip install edge-tts" + Environment.NewLine + "python generate_audio.py";
+                // 一鍵複製標準環境安裝指令
+                string cmd = "pip install edge-tts aiohttp pykakasi";
                 Clipboard.Clear();
                 Clipboard.SetDataObject(cmd, true);
 

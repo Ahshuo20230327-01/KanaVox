@@ -57,6 +57,7 @@
     <Compile Include="AudioService.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="OllamaService.cs" />
+    <Compile Include="StaticDataService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

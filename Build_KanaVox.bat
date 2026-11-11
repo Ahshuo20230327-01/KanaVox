@@ -96,6 +96,13 @@ if not exist "%PROJ_DIR%\KanaVox.csproj" (
     echo [OK] 已建立 KanaVox.csproj
 )
 
+:: 自動將背景常駐代理與相關資料庫腳本同步到 bin\Release\ 供本地直接執行
+copy /y "%PROJ_DIR%\edge_tts_proxy.py" "%PROJ_DIR%\bin\Release\" >nul
+copy /y "%PROJ_DIR%\generate_clean_kana.py" "%PROJ_DIR%\bin\Release\" >nul
+copy /y "%PROJ_DIR%\Start_TtsProxy.bat" "%PROJ_DIR%\bin\Release\" >nul
+copy /y "%PROJ_DIR%\mnemonics.json" "%PROJ_DIR%\bin\Release\" >nul
+copy /y "%PROJ_DIR%\preset_sentences.json" "%PROJ_DIR%\bin\Release\" >nul
+
 :: 3. 執行 Release 編譯
 echo.
 echo ========================================================

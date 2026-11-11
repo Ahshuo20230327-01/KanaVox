@@ -1,0 +1,6170 @@
+{
+  "a": [
+    {
+      "category": "生活起居",
+      "romaji": "asaha pan wo tabe masu.",
+      "translation": "早上吃麵包。",
+      "segments": [
+        {
+          "text": "あさは",
+          "furigana": ""
+        },
+        {
+          "text": "パン",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "amegafutteimasu kasa wo motsu teikimashou.",
+      "translation": "正在下雨，帶把傘吧。",
+      "segments": [
+        {
+          "text": "あめがふっています",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        },
+        {
+          "text": "傘",
+          "furigana": "かさ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "持っ",
+          "furigana": "もっ"
+        },
+        {
+          "text": "ていきましょう",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "i": [
+    {
+      "category": "生活起居",
+      "romaji": "asahayaku oki masu.",
+      "translation": "早上早起。",
+      "segments": [
+        {
+          "text": "朝早く",
+          "furigana": "あさはやく"
+        },
+        {
+          "text": "起き",
+          "furigana": "おき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "o cha wo nomi masu.",
+      "translation": "喝茶。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "u": [
+    {
+      "category": "生活起居",
+      "romaji": "asa ugaiwoshimasu.",
+      "translation": "早上刷牙。",
+      "segments": [
+        {
+          "text": "朝",
+          "furigana": "あさ"
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "うがいをします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "o cha wo nomi masu.",
+      "translation": "喝茶。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "e": [
+    {
+      "category": "生活起居",
+      "romaji": "heya wo souji shimasu.",
+      "translation": "打扫房間。",
+      "segments": [
+        {
+          "text": "部屋",
+          "furigana": "へや"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "掃除",
+          "furigana": "そうじ"
+        },
+        {
+          "text": "します",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "o cha wo nomi masu.",
+      "translation": "喝茶。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "o": [
+    {
+      "category": "生活起居",
+      "romaji": "o furo ni iri masu.",
+      "translation": "洗澡。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "風呂",
+          "furigana": "ふろ"
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "入り",
+          "furigana": "いり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "o cha wo nomi masu.",
+      "translation": "喝茶。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ka": [
+    {
+      "category": "生活起居",
+      "romaji": "kasa ga hitsuyou desuka.",
+      "translation": "需要雨傘嗎？",
+      "segments": [
+        {
+          "text": "傘",
+          "furigana": "かさ"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "必要",
+          "furigana": "ひつよう"
+        },
+        {
+          "text": "ですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常問候",
+      "romaji": "konnichiha genki desuka.",
+      "translation": "你好，你還好嗎？",
+      "segments": [
+        {
+          "text": "こんにちは",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "元気",
+          "furigana": "げんき"
+        },
+        {
+          "text": "ですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ki": [
+    {
+      "category": "生活起居",
+      "romaji": "kinouha tenki ga yoka ttadesu.",
+      "translation": "昨天天氣很好。",
+      "segments": [
+        {
+          "text": "きのうは",
+          "furigana": ""
+        },
+        {
+          "text": "天気",
+          "furigana": "てんき"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "良か",
+          "furigana": "よか"
+        },
+        {
+          "text": "ったです",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "kinokono suupu ga suki desu.",
+      "translation": "喜歡蘑菇湯。",
+      "segments": [
+        {
+          "text": "きのこの",
+          "furigana": ""
+        },
+        {
+          "text": "スープ",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ku": [
+    {
+      "category": "生活起居",
+      "romaji": "watashi ha mainichi koohii wo nomi masu.",
+      "translation": "我每天喝咖啡。",
+      "segments": [
+        {
+          "text": "私",
+          "furigana": "わたし"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "毎日",
+          "furigana": "まいにち"
+        },
+        {
+          "text": "コーヒー",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "tomodachi to kou  pikunikku woshimasu.",
+      "translation": "和朋友在公園野餐。",
+      "segments": [
+        {
+          "text": "友達",
+          "furigana": "ともだち"
+        },
+        {
+          "text": "と",
+          "furigana": ""
+        },
+        {
+          "text": "公",
+          "furigana": "こう"
+        },
+        {
+          "text": "园",
+          "furigana": ""
+        },
+        {
+          "text": "ピクニック",
+          "furigana": ""
+        },
+        {
+          "text": "をします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ke": [
+    {
+      "category": "生活起居",
+      "romaji": "kutsu wo hai te deka kemasu.",
+      "translation": "穿鞋出門。",
+      "segments": [
+        {
+          "text": "靴",
+          "furigana": "くつ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "履い",
+          "furigana": "はい"
+        },
+        {
+          "text": "て",
+          "furigana": ""
+        },
+        {
+          "text": "出か",
+          "furigana": "でか"
+        },
+        {
+          "text": "けます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "keeki wo tabe masu.",
+      "translation": "吃蛋糕。",
+      "segments": [
+        {
+          "text": "ケーキ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ko": [
+    {
+      "category": "生活起居",
+      "romaji": "kono fuku ha ookisu gimasu.",
+      "translation": "這件衣服太大了。",
+      "segments": [
+        {
+          "text": "この",
+          "furigana": ""
+        },
+        {
+          "text": "服",
+          "furigana": "ふく"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "大きす",
+          "furigana": "おおきす"
+        },
+        {
+          "text": "ぎます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "koppu ni mizu wo sosogi masu.",
+      "translation": "往杯子裡倒水。",
+      "segments": [
+        {
+          "text": "コップ",
+          "furigana": ""
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "注ぎ",
+          "furigana": "そそぎ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "sa": [
+    {
+      "category": "生活起居",
+      "romaji": "sakkaa woshimasu.",
+      "translation": "踢足球。",
+      "segments": [
+        {
+          "text": "サッカー",
+          "furigana": ""
+        },
+        {
+          "text": "をします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常問候",
+      "romaji": "sayounara.",
+      "translation": "再見。",
+      "segments": [
+        {
+          "text": "さようなら",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "shi": [
+    {
+      "category": "生活起居",
+      "romaji": "sentakumono wo hoshi masu.",
+      "translation": "把洗好的衣服晾起來。",
+      "segments": [
+        {
+          "text": "洗濯物",
+          "furigana": "せんたくもの"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "干し",
+          "furigana": "ほし"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "o cha wo nomi masu.",
+      "translation": "喝茶。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "su": [
+    {
+      "category": "生活起居",
+      "romaji": "sumimasen toire hadokodesuka.",
+      "translation": "不好意思，廁所在哪裡？",
+      "segments": [
+        {
+          "text": "すみません",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "トイレ",
+          "furigana": ""
+        },
+        {
+          "text": "はどこですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "sushiha oishii desu.",
+      "translation": "壽司很好吃。",
+      "segments": [
+        {
+          "text": "すしは",
+          "furigana": ""
+        },
+        {
+          "text": "美味しい",
+          "furigana": "おいしい"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "se": [
+    {
+      "category": "生活起居",
+      "romaji": "sentaku ki wo tsukatte sentaku shimasu.",
+      "translation": "用洗衣機洗衣服。",
+      "segments": [
+        {
+          "text": "せんたく",
+          "furigana": ""
+        },
+        {
+          "text": "機",
+          "furigana": "き"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "使って",
+          "furigana": "つかって"
+        },
+        {
+          "text": "洗濯",
+          "furigana": "せんたく"
+        },
+        {
+          "text": "します",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "senbeiha nippon no dentouteki nao kashi desu.",
+      "translation": "せんべい是日本傳統的點心。",
+      "segments": [
+        {
+          "text": "せんべいは",
+          "furigana": ""
+        },
+        {
+          "text": "日本",
+          "furigana": "にっぽん"
+        },
+        {
+          "text": "の",
+          "furigana": ""
+        },
+        {
+          "text": "伝統的",
+          "furigana": "でんとうてき"
+        },
+        {
+          "text": "なお",
+          "furigana": ""
+        },
+        {
+          "text": "菓子",
+          "furigana": "かし"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "so": [
+    {
+      "category": "生活起居",
+      "romaji": "sorawomitekudasai.",
+      "translation": "看看天空。",
+      "segments": [
+        {
+          "text": "そらをみてください",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "sodachinoringowo tabe masu.",
+      "translation": "吃種植的蘋果。",
+      "segments": [
+        {
+          "text": "そだちのりんごを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ta": [
+    {
+      "category": "生活起居",
+      "romaji": "asa kazoku to asagohan wo tabe masu.",
+      "translation": "早上和家人一起吃早餐。",
+      "segments": [
+        {
+          "text": "朝",
+          "furigana": "あさ"
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "家族",
+          "furigana": "かぞく"
+        },
+        {
+          "text": "と",
+          "furigana": ""
+        },
+        {
+          "text": "朝ごはん",
+          "furigana": "あさごはん"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "tamani tomodachi to kafe de koohii wo nomi masu.",
+      "translation": "有時候和朋友去咖啡廳喝咖啡。",
+      "segments": [
+        {
+          "text": "たまに",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "友達",
+          "furigana": "ともだち"
+        },
+        {
+          "text": "と",
+          "furigana": ""
+        },
+        {
+          "text": "カフェ",
+          "furigana": ""
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "コーヒー",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "chi": [
+    {
+      "category": "生活起居",
+      "romaji": "asa hawo migaki masu.",
+      "translation": "早上刷牙。",
+      "segments": [
+        {
+          "text": "朝",
+          "furigana": "あさ"
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "歯を",
+          "furigana": "はを"
+        },
+        {
+          "text": "磨き",
+          "furigana": "みがき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "o cha wo nomi masu.",
+      "translation": "喝茶。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "tsu": [
+    {
+      "category": "生活起居",
+      "romaji": "tsumayoujiwo tsukatte hawo souji shimasu.",
+      "translation": "用牙籤清潔牙齒。",
+      "segments": [
+        {
+          "text": "つまようじを",
+          "furigana": ""
+        },
+        {
+          "text": "使って",
+          "furigana": "つかって"
+        },
+        {
+          "text": "歯を",
+          "furigana": "はを"
+        },
+        {
+          "text": "掃除",
+          "furigana": "そうじ"
+        },
+        {
+          "text": "します",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "tsubushita banana wo sumuujii ni kuwae masu.",
+      "translation": "把壓爛的香蕉加到果汁裡。",
+      "segments": [
+        {
+          "text": "つぶした",
+          "furigana": ""
+        },
+        {
+          "text": "バナナ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "スムージー",
+          "furigana": ""
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "加え",
+          "furigana": "くわえ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "te": [
+    {
+      "category": "生活起居",
+      "romaji": "te wo arai masu.",
+      "translation": "洗手。",
+      "segments": [
+        {
+          "text": "手",
+          "furigana": "て"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "洗い",
+          "furigana": "あらい"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "o cha wo nomi masu.",
+      "translation": "喝茶。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "to": [
+    {
+      "category": "生活起居",
+      "romaji": "tokono hon ha dare nodesuka.",
+      "translation": "這裡的書是誰的？",
+      "segments": [
+        {
+          "text": "とこの",
+          "furigana": ""
+        },
+        {
+          "text": "本",
+          "furigana": "ほん"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "誰",
+          "furigana": "だれ"
+        },
+        {
+          "text": "のですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "tomatoha akai desu.",
+      "translation": "番茄是紅色的。",
+      "segments": [
+        {
+          "text": "とまとは",
+          "furigana": ""
+        },
+        {
+          "text": "赤い",
+          "furigana": "あかい"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "na": [
+    {
+      "category": "生活起居",
+      "romaji": "namae hanatsukidesu.",
+      "translation": "我的名字是花月。",
+      "segments": [
+        {
+          "text": "名前",
+          "furigana": "なまえ"
+        },
+        {
+          "text": "はなつきです",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "natadekoko wo tabe mashita.",
+      "translation": "我吃了椰菜花。",
+      "segments": [
+        {
+          "text": "ナタデココ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ni": [
+    {
+      "category": "生活起居",
+      "romaji": "watashi ha heya niimasu.",
+      "translation": "我在房間裡。",
+      "segments": [
+        {
+          "text": "私",
+          "furigana": "わたし"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "部屋",
+          "furigana": "へや"
+        },
+        {
+          "text": "にいます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "o cha ni satou wo ire masu.",
+      "translation": "在茶裡加糖。",
+      "segments": [
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "砂糖",
+          "furigana": "さとう"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "入れ",
+          "furigana": "いれ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "nu": [
+    {
+      "category": "生活起居",
+      "romaji": "nuigurumiga suki desu.",
+      "translation": "喜歡玩偶。",
+      "segments": [
+        {
+          "text": "ぬいぐるみが",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "nuka tsuke ha nippon no dentouryouri desu.",
+      "translation": "味噌漬是日本的傳統料理。",
+      "segments": [
+        {
+          "text": "ぬか",
+          "furigana": ""
+        },
+        {
+          "text": "漬け",
+          "furigana": "つけ"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "日本",
+          "furigana": "にっぽん"
+        },
+        {
+          "text": "の",
+          "furigana": ""
+        },
+        {
+          "text": "伝統料理",
+          "furigana": "でんとうりょうり"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ne": [
+    {
+      "category": "生活起居",
+      "romaji": "neru mae niha hawo migaki masu.",
+      "translation": "睡覺前要刷牙。",
+      "segments": [
+        {
+          "text": "寝る",
+          "furigana": "ねる"
+        },
+        {
+          "text": "前",
+          "furigana": "まえ"
+        },
+        {
+          "text": "には",
+          "furigana": ""
+        },
+        {
+          "text": "歯を",
+          "furigana": "はを"
+        },
+        {
+          "text": "磨き",
+          "furigana": "みがき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常問候",
+      "romaji": "ohayoune.",
+      "translation": "早安哦。",
+      "segments": [
+        {
+          "text": "おはようね",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "no": [
+    {
+      "category": "生活起居",
+      "romaji": "nodoga kawai tanode mizu wo nomi masu.",
+      "translation": "喉乾了，喝水。",
+      "segments": [
+        {
+          "text": "のどが",
+          "furigana": ""
+        },
+        {
+          "text": "乾い",
+          "furigana": "かわい"
+        },
+        {
+          "text": "たので",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "kazoku no shashin wo mima su.",
+      "translation": "看家人的照片。",
+      "segments": [
+        {
+          "text": "家族",
+          "furigana": "かぞく"
+        },
+        {
+          "text": "の",
+          "furigana": ""
+        },
+        {
+          "text": "写真",
+          "furigana": "しゃしん"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "見ま",
+          "furigana": "みま"
+        },
+        {
+          "text": "す",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ha": [
+    {
+      "category": "生活起居",
+      "romaji": "hagakiwo kaki masu.",
+      "translation": "寫明信片。",
+      "segments": [
+        {
+          "text": "はがきを",
+          "furigana": ""
+        },
+        {
+          "text": "書き",
+          "furigana": "かき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "hashidego meshi wo tabe masu.",
+      "translation": "用筷子吃飯。",
+      "segments": [
+        {
+          "text": "はしでご",
+          "furigana": ""
+        },
+        {
+          "text": "飯",
+          "furigana": "めし"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "hi": [
+    {
+      "category": "日常飲食",
+      "romaji": "himawari abura de age masu.",
+      "translation": "用葵花油炸。",
+      "segments": [
+        {
+          "text": "ひまわり",
+          "furigana": ""
+        },
+        {
+          "text": "油",
+          "furigana": "あぶら"
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "揚げ",
+          "furigana": "あげ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "himawotsubushite hon wo yomi masu.",
+      "translation": "消磨時間看書。",
+      "segments": [
+        {
+          "text": "ひまをつぶして",
+          "furigana": ""
+        },
+        {
+          "text": "本",
+          "furigana": "ほん"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "読み",
+          "furigana": "よみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "fu": [
+    {
+      "category": "生活起居",
+      "romaji": "kaze ga tsuyoi node mado wo shime mashou.",
+      "translation": "風大，把窗戶關上吧。",
+      "segments": [
+        {
+          "text": "風",
+          "furigana": "かぜ"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "強い",
+          "furigana": "つよい"
+        },
+        {
+          "text": "ので",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "窓",
+          "furigana": "まど"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "閉め",
+          "furigana": "しめ"
+        },
+        {
+          "text": "ましょう",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "tomodachi to kafe de koohii wo nomi masu.",
+      "translation": "和朋友在咖啡廳喝咖啡。",
+      "segments": [
+        {
+          "text": "友達",
+          "furigana": "ともだち"
+        },
+        {
+          "text": "と",
+          "furigana": ""
+        },
+        {
+          "text": "カフェ",
+          "furigana": ""
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "コーヒー",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "he": [
+    {
+      "category": "生活起居",
+      "romaji": "kouen he iki masu.",
+      "translation": "去公園。",
+      "segments": [
+        {
+          "text": "公園",
+          "furigana": "こうえん"
+        },
+        {
+          "text": "へ",
+          "furigana": ""
+        },
+        {
+          "text": "行き",
+          "furigana": "いき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "tomodachi heo kashi woagemasu.",
+      "translation": "把點心給朋友。",
+      "segments": [
+        {
+          "text": "友達",
+          "furigana": "ともだち"
+        },
+        {
+          "text": "へお",
+          "furigana": ""
+        },
+        {
+          "text": "菓子",
+          "furigana": "かし"
+        },
+        {
+          "text": "をあげます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ho": [
+    {
+      "category": "生活起居",
+      "romaji": "hottokemuriga dete kimashita.",
+      "translation": "有熱氣冒出來了.",
+      "segments": [
+        {
+          "text": "ほっとけむりが",
+          "furigana": ""
+        },
+        {
+          "text": "出て",
+          "furigana": "でて"
+        },
+        {
+          "text": "きました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "hotate kai haoishiidesu.",
+      "translation": "扇貝很好吃。",
+      "segments": [
+        {
+          "text": "ほたて",
+          "furigana": ""
+        },
+        {
+          "text": "貝",
+          "furigana": "かい"
+        },
+        {
+          "text": "はおいしいです",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ma": [
+    {
+      "category": "生活起居",
+      "romaji": "mainichi o kaasan ga souji woshimasu.",
+      "translation": "每天媽媽都會打扫。",
+      "segments": [
+        {
+          "text": "毎日",
+          "furigana": "まいにち"
+        },
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "母さん",
+          "furigana": "かあさん"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "掃除",
+          "furigana": "そうじ"
+        },
+        {
+          "text": "をします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "matsu gariwo tabe masu.",
+      "translation": "吃馬鈴薯。",
+      "segments": [
+        {
+          "text": "マツ",
+          "furigana": ""
+        },
+        {
+          "text": "がりを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "mi": [
+    {
+      "category": "日常飲食",
+      "romaji": "mizu wo nomi masu.",
+      "translation": "喝水。",
+      "segments": [
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "mise de hon wo kai masu.",
+      "translation": "在店裡買書。",
+      "segments": [
+        {
+          "text": "店",
+          "furigana": "みせ"
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "本",
+          "furigana": "ほん"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "買い",
+          "furigana": "かい"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "mu": [
+    {
+      "category": "生活起居",
+      "romaji": "heya wo souji shimasu.",
+      "translation": "打扫房間。",
+      "segments": [
+        {
+          "text": "部屋",
+          "furigana": "へや"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "掃除",
+          "furigana": "そうじ"
+        },
+        {
+          "text": "します",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "miruku wo nomi masu.",
+      "translation": "喝牛奶。",
+      "segments": [
+        {
+          "text": "ミルク",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "me": [
+    {
+      "category": "生活起居",
+      "romaji": "me ga tsukare tanode yasumo uto omoi masu.",
+      "translation": "眼睛累了，想休息一下。",
+      "segments": [
+        {
+          "text": "目",
+          "furigana": "め"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "疲れ",
+          "furigana": "つかれ"
+        },
+        {
+          "text": "たので",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "休も",
+          "furigana": "やすも"
+        },
+        {
+          "text": "うと",
+          "furigana": ""
+        },
+        {
+          "text": "思い",
+          "furigana": "おもい"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "meron wo tabe runoha natsu ga ichiban oishii desu.",
+      "translation": "夏天吃西瓜最美味。",
+      "segments": [
+        {
+          "text": "メロン",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "るのは",
+          "furigana": ""
+        },
+        {
+          "text": "夏",
+          "furigana": "なつ"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "一番",
+          "furigana": "いちばん"
+        },
+        {
+          "text": "美味しい",
+          "furigana": "おいしい"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "mo": [
+    {
+      "category": "生活起居",
+      "romaji": "ie nimoarimasu.",
+      "translation": "家裡也有。",
+      "segments": [
+        {
+          "text": "家",
+          "furigana": "いえ"
+        },
+        {
+          "text": "にもあります",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "mizu mo nomi mashita.",
+      "translation": "也喝了水。",
+      "segments": [
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "も",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ya": [
+    {
+      "category": "生活起居",
+      "romaji": "yamaha aoi desu.",
+      "translation": "山是藍色的。",
+      "segments": [
+        {
+          "text": "やまは",
+          "furigana": ""
+        },
+        {
+          "text": "青い",
+          "furigana": "あおい"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "yasaiwo tabe masu.",
+      "translation": "吃蔬菜。",
+      "segments": [
+        {
+          "text": "やさいを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "yu": [
+    {
+      "category": "日常飲食",
+      "romaji": "yude tamago wo tabe masu.",
+      "translation": "吃水煮蛋。",
+      "segments": [
+        {
+          "text": "ゆで",
+          "furigana": ""
+        },
+        {
+          "text": "卵",
+          "furigana": "たまご"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "yuuni nema su.",
+      "translation": "晚上睡覺。",
+      "segments": [
+        {
+          "text": "ゆうに",
+          "furigana": ""
+        },
+        {
+          "text": "寝ま",
+          "furigana": "ねま"
+        },
+        {
+          "text": "す",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "yo": [
+    {
+      "category": "日常飲食",
+      "romaji": "yooguruto wo nomi masu.",
+      "translation": "喝優格。",
+      "segments": [
+        {
+          "text": "ヨーグルト",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "yoru ha shizuka desuyo.",
+      "translation": "晚上很安靜。",
+      "segments": [
+        {
+          "text": "夜",
+          "furigana": "よる"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "静か",
+          "furigana": "しずか"
+        },
+        {
+          "text": "ですよ",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ra": [
+    {
+      "category": "生活起居",
+      "romaji": "mainichi rajio wo kiki masu.",
+      "translation": "每天聽廣播。",
+      "segments": [
+        {
+          "text": "毎日",
+          "furigana": "まいにち"
+        },
+        {
+          "text": "ラジオ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "聞き",
+          "furigana": "きき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "raamen ga suki desu.",
+      "translation": "喜歡拉麵。",
+      "segments": [
+        {
+          "text": "ラーメン",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ri": [
+    {
+      "category": "生活起居",
+      "romaji": "ringowo tabe masu.",
+      "translation": "吃蘋果。",
+      "segments": [
+        {
+          "text": "りんごを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "ringo juusu ga suki desu.",
+      "translation": "喜歡蘋果汁。",
+      "segments": [
+        {
+          "text": "りんご",
+          "furigana": ""
+        },
+        {
+          "text": "ジュース",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ru": [
+    {
+      "category": "生活起居",
+      "romaji": "mainichi o furo ni iri masu.",
+      "translation": "每天泡澡。",
+      "segments": [
+        {
+          "text": "毎日",
+          "furigana": "まいにち"
+        },
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "風呂",
+          "furigana": "ふろ"
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "入り",
+          "furigana": "いり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "resutoran de shokuji woshimasu.",
+      "translation": "在餐廳用餐。",
+      "segments": [
+        {
+          "text": "レストラン",
+          "furigana": ""
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "食事",
+          "furigana": "しょくじ"
+        },
+        {
+          "text": "をします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "re": [
+    {
+      "category": "生活起居",
+      "romaji": "rekoodo wo kiki masu.",
+      "translation": "聽唱片.",
+      "segments": [
+        {
+          "text": "レコード",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "聴き",
+          "furigana": "きき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "tsumetai nomimono ga suki desu.",
+      "translation": "喜歡喝冷飲。",
+      "segments": [
+        {
+          "text": "冷たい",
+          "furigana": "つめたい"
+        },
+        {
+          "text": "飲み物",
+          "furigana": "のみもの"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ro": [
+    {
+      "category": "生活起居",
+      "romaji": "rokkii ha ie niarimasu.",
+      "translation": "洛克基在家裡。",
+      "segments": [
+        {
+          "text": "ロッキー",
+          "furigana": ""
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "家",
+          "furigana": "いえ"
+        },
+        {
+          "text": "にあります",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "rousokuwo keshi tekara nema su.",
+      "translation": "熄掉蠟燭再睡覺。",
+      "segments": [
+        {
+          "text": "ろうそくを",
+          "furigana": ""
+        },
+        {
+          "text": "消し",
+          "furigana": "けし"
+        },
+        {
+          "text": "てから",
+          "furigana": ""
+        },
+        {
+          "text": "寝ま",
+          "furigana": "ねま"
+        },
+        {
+          "text": "す",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "wa": [
+    {
+      "category": "生活起居",
+      "romaji": "watashi hawankoga suki desu.",
+      "translation": "我喜欢汪星人。",
+      "segments": [
+        {
+          "text": "私",
+          "furigana": "わたし"
+        },
+        {
+          "text": "はわんこが",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "mizu wo nomi mashita.",
+      "translation": "喝了水。",
+      "segments": [
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "wo": [
+    {
+      "category": "生活起居",
+      "romaji": "kouen wo sanpo shimasu.",
+      "translation": "在公園散步。",
+      "segments": [
+        {
+          "text": "公園",
+          "furigana": "こうえん"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "散歩",
+          "furigana": "さんぽ"
+        },
+        {
+          "text": "します",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "mizu wo nomi masu.",
+      "translation": "喝水。",
+      "segments": [
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "n": [
+    {
+      "category": "生活起居",
+      "romaji": "densha ni nori masu.",
+      "translation": "搭電車。",
+      "segments": [
+        {
+          "text": "電車",
+          "furigana": "でんしゃ"
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "乗り",
+          "furigana": "のり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "mizu wo nomi masu.",
+      "translation": "喝水。",
+      "segments": [
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ga": [
+    {
+      "category": "生活起居",
+      "romaji": "gachouha aoi desu.",
+      "translation": "鴨子是藍色的。",
+      "segments": [
+        {
+          "text": "がちょうは",
+          "furigana": ""
+        },
+        {
+          "text": "青い",
+          "furigana": "あおい"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "go meshi ga suki desu.",
+      "translation": "我喜欢飯。",
+      "segments": [
+        {
+          "text": "ご",
+          "furigana": ""
+        },
+        {
+          "text": "飯",
+          "furigana": "めし"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "gi": [
+    {
+      "category": "生活起居",
+      "romaji": "ginkoudeo kin wooroshimasu.",
+      "translation": "在銀行提款。",
+      "segments": [
+        {
+          "text": "ぎんこうでお",
+          "furigana": ""
+        },
+        {
+          "text": "金",
+          "furigana": "きん"
+        },
+        {
+          "text": "をおろします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "gyuunyokuhatotemooishiidesu.",
+      "translation": "牛肉非常好吃。",
+      "segments": [
+        {
+          "text": "ぎゅうにょくはとてもおいしいです",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "gu": [
+    {
+      "category": "生活起居",
+      "romaji": "watashi ha mainichi guruguru aruki masu.",
+      "translation": "我每天繞來繞去地走動。",
+      "segments": [
+        {
+          "text": "私",
+          "furigana": "わたし"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "毎日",
+          "furigana": "まいにち"
+        },
+        {
+          "text": "ぐるぐる",
+          "furigana": ""
+        },
+        {
+          "text": "歩き",
+          "furigana": "あるき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "tsumetai nomimono ga suki desu tokuni gureepujuusu ga daisuki desu.",
+      "translation": "喜歡喝冷飲，特別是葡萄汁。",
+      "segments": [
+        {
+          "text": "冷たい",
+          "furigana": "つめたい"
+        },
+        {
+          "text": "飲み物",
+          "furigana": "のみもの"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        },
+        {
+          "text": "特に",
+          "furigana": "とくに"
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "グレープジュース",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "大好き",
+          "furigana": "だいすき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ge": [
+    {
+      "category": "生活起居",
+      "romaji": "genkidesuka.",
+      "translation": "你有精神嗎？",
+      "segments": [
+        {
+          "text": "げんきですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "pan wogettoshimashita.",
+      "translation": "我拿到了麵包。",
+      "segments": [
+        {
+          "text": "パン",
+          "furigana": ""
+        },
+        {
+          "text": "をげっとしました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "go": [
+    {
+      "category": "生活起居",
+      "romaji": "go meshi wo tabe masu.",
+      "translation": "吃飯。",
+      "segments": [
+        {
+          "text": "ご",
+          "furigana": ""
+        },
+        {
+          "text": "飯",
+          "furigana": "めし"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常問候",
+      "romaji": "konnichiha gokigenyou.",
+      "translation": "你好，祝你愉快。",
+      "segments": [
+        {
+          "text": "こんにちは",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "ごきげんよう",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "za": [
+    {
+      "category": "日常飲食",
+      "romaji": "zarusobawo tabe masu.",
+      "translation": "吃冷面。",
+      "segments": [
+        {
+          "text": "ざるそばを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "zasshiwo yomi masu.",
+      "translation": "看雜誌。",
+      "segments": [
+        {
+          "text": "ざっしを",
+          "furigana": ""
+        },
+        {
+          "text": "読み",
+          "furigana": "よみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ji": [
+    {
+      "category": "生活起居",
+      "romaji": "jishowotsukatte tango wo shirabe masu.",
+      "translation": "用字典查單詞。",
+      "segments": [
+        {
+          "text": "じしょをつかって",
+          "furigana": ""
+        },
+        {
+          "text": "単語",
+          "furigana": "たんご"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "調べ",
+          "furigana": "しらべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "jibundegohanwo tsukuri masu.",
+      "translation": "自己做飯。",
+      "segments": [
+        {
+          "text": "じぶんでごはんを",
+          "furigana": ""
+        },
+        {
+          "text": "作り",
+          "furigana": "つくり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "zu": [
+    {
+      "category": "生活起居",
+      "romaji": "kutsu wozurashite heya ni iri masu.",
+      "translation": "把鞋子移開再進房間。",
+      "segments": [
+        {
+          "text": "靴",
+          "furigana": "くつ"
+        },
+        {
+          "text": "をずらして",
+          "furigana": ""
+        },
+        {
+          "text": "部屋",
+          "furigana": "へや"
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "入り",
+          "furigana": "いり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "mizu wo nomu to nodo ga jun imasu.",
+      "translation": "喝水喉嚨會變潤。",
+      "segments": [
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲む",
+          "furigana": "のむ"
+        },
+        {
+          "text": "と",
+          "furigana": ""
+        },
+        {
+          "text": "喉",
+          "furigana": "のど"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "潤",
+          "furigana": "じゅん"
+        },
+        {
+          "text": "います",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ze": [
+    {
+      "category": "日常飲食",
+      "romaji": "zerii ga suki desu.",
+      "translation": "喜歡果凍。",
+      "segments": [
+        {
+          "text": "ゼリー",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "heya wo souji shimasu soujiki wokakemasu.",
+      "translation": "打扫房間。用吸塵器吸塵。",
+      "segments": [
+        {
+          "text": "部屋",
+          "furigana": "へや"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "掃除",
+          "furigana": "そうじ"
+        },
+        {
+          "text": "します",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        },
+        {
+          "text": "掃除機",
+          "furigana": "そうじき"
+        },
+        {
+          "text": "をかけます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "zo": [
+    {
+      "category": "生活起居",
+      "romaji": "zoukinde teeburu wo fuki masu.",
+      "translation": "用抹布擦桌子。",
+      "segments": [
+        {
+          "text": "ぞうきんで",
+          "furigana": ""
+        },
+        {
+          "text": "テーブル",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "拭き",
+          "furigana": "ふき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "zousuiwo nomi masu.",
+      "translation": "喝果汁。",
+      "segments": [
+        {
+          "text": "ぞうすいを",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "da": [
+    {
+      "category": "生活起居",
+      "romaji": "watashi hadaisukidesu.",
+      "translation": "我喜歡。",
+      "segments": [
+        {
+          "text": "私",
+          "furigana": "わたし"
+        },
+        {
+          "text": "はだいすきです",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "korehadaijoubudesuka.",
+      "translation": "這個可以嗎？",
+      "segments": [
+        {
+          "text": "これはだいじょうぶですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "de": [
+    {
+      "category": "日常飲食",
+      "romaji": "resutoran de shokuji woshimasu.",
+      "translation": "在餐廳吃飯。",
+      "segments": [
+        {
+          "text": "レストラン",
+          "furigana": ""
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "食事",
+          "furigana": "しょくじ"
+        },
+        {
+          "text": "をします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "ie de terebi wo mima su.",
+      "translation": "在家看電視。",
+      "segments": [
+        {
+          "text": "家",
+          "furigana": "いえ"
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "テレビ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "見ま",
+          "furigana": "みま"
+        },
+        {
+          "text": "す",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "do": [
+    {
+      "category": "生活起居",
+      "romaji": "do apaato niimasuka.",
+      "translation": "住在哪個公寓？",
+      "segments": [
+        {
+          "text": "ど",
+          "furigana": ""
+        },
+        {
+          "text": "アパート",
+          "furigana": ""
+        },
+        {
+          "text": "にいますか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "dono nomimono ga suki desuka.",
+      "translation": "喜歡哪種飲料？",
+      "segments": [
+        {
+          "text": "どの",
+          "furigana": ""
+        },
+        {
+          "text": "飲み物",
+          "furigana": "のみもの"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "ですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ba": [
+    {
+      "category": "生活起居",
+      "romaji": "basutaoru hadokodesuka.",
+      "translation": "浴巾在哪裡？",
+      "segments": [
+        {
+          "text": "バスタオル",
+          "furigana": ""
+        },
+        {
+          "text": "はどこですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "banana ha suki desuka.",
+      "translation": "喜不喜歡香蕉？",
+      "segments": [
+        {
+          "text": "バナナ",
+          "furigana": ""
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "ですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "bi": [
+    {
+      "category": "生活起居",
+      "romaji": "mainichi o furo nibisshirito iri masu.",
+      "translation": "每天好好泡澡。",
+      "segments": [
+        {
+          "text": "毎日",
+          "furigana": "まいにち"
+        },
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "風呂",
+          "furigana": "ふろ"
+        },
+        {
+          "text": "にびっしりと",
+          "furigana": ""
+        },
+        {
+          "text": "入り",
+          "furigana": "いり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "biiru ha hie tekara nomi masu.",
+      "translation": "啤酒要冰過再喝。",
+      "segments": [
+        {
+          "text": "ビール",
+          "furigana": ""
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "冷え",
+          "furigana": "ひえ"
+        },
+        {
+          "text": "てから",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "bu": [
+    {
+      "category": "生活起居",
+      "romaji": "heya wo souji shimasu.",
+      "translation": "打扫房间。",
+      "segments": [
+        {
+          "text": "部屋",
+          "furigana": "へや"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "掃除",
+          "furigana": "そうじ"
+        },
+        {
+          "text": "します",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "budouwo tabe masu.",
+      "translation": "吃葡萄。",
+      "segments": [
+        {
+          "text": "ぶどうを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "be": [
+    {
+      "category": "生活起居",
+      "romaji": "beddo no ueni hon gaarimasu.",
+      "translation": "床頭上有本書。",
+      "segments": [
+        {
+          "text": "ベッド",
+          "furigana": ""
+        },
+        {
+          "text": "の",
+          "furigana": ""
+        },
+        {
+          "text": "上に",
+          "furigana": "うえに"
+        },
+        {
+          "text": "本",
+          "furigana": "ほん"
+        },
+        {
+          "text": "があります",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "watashi ha pan wo tabe masu.",
+      "translation": "我吃麵包。",
+      "segments": [
+        {
+          "text": "私",
+          "furigana": "わたし"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "パン",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "bo": [
+    {
+      "category": "生活起居",
+      "romaji": "boushiwokabutte deka kemasu.",
+      "translation": "戴著帽子出門。",
+      "segments": [
+        {
+          "text": "ぼうしをかぶって",
+          "furigana": ""
+        },
+        {
+          "text": "出か",
+          "furigana": "でか"
+        },
+        {
+          "text": "けます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "boushiwokabutte kouen de pikunikku woshimasu.",
+      "translation": "戴著帽子在公園野餐。",
+      "segments": [
+        {
+          "text": "ぼうしをかぶって",
+          "furigana": ""
+        },
+        {
+          "text": "公園",
+          "furigana": "こうえん"
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "ピクニック",
+          "furigana": ""
+        },
+        {
+          "text": "をします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "pa": [
+    {
+      "category": "生活起居",
+      "romaji": "chichi ha kouen de paakaa wo kite imasu.",
+      "translation": "爸爸在公園穿著外套。",
+      "segments": [
+        {
+          "text": "父",
+          "furigana": "ちち"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "公園",
+          "furigana": "こうえん"
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "パーカー",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "着て",
+          "furigana": "きて"
+        },
+        {
+          "text": "います",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "pan wo tabe runoga suki desu.",
+      "translation": "我喜欢吃麵包。",
+      "segments": [
+        {
+          "text": "パン",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "るのが",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "pi": [
+    {
+      "category": "生活起居",
+      "romaji": "piano wo hiki masu.",
+      "translation": "彈鋼琴。",
+      "segments": [
+        {
+          "text": "ピアノ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "弾き",
+          "furigana": "ひき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "piza wo tabe masu.",
+      "translation": "吃比薩。",
+      "segments": [
+        {
+          "text": "ピザ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "pu": [
+    {
+      "category": "日常飲食",
+      "romaji": "puucho wo tabe masu.",
+      "translation": "吃布丁。",
+      "segments": [
+        {
+          "text": "プーチョ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "furo ni iri masu.",
+      "translation": "洗澡。",
+      "segments": [
+        {
+          "text": "風呂",
+          "furigana": "ふろ"
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "入り",
+          "furigana": "いり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "pe": [
+    {
+      "category": "生活起居",
+      "romaji": "pende e wo egaki masu.",
+      "translation": "用鉛筆畫畫。",
+      "segments": [
+        {
+          "text": "ぺんで",
+          "furigana": ""
+        },
+        {
+          "text": "絵",
+          "furigana": "え"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "描き",
+          "furigana": "えがき"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "peraberato hanashi masu.",
+      "translation": "暢所欲言地聊天。",
+      "segments": [
+        {
+          "text": "ぺらべらと",
+          "furigana": ""
+        },
+        {
+          "text": "話し",
+          "furigana": "はなし"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "po": [
+    {
+      "category": "生活起居",
+      "romaji": "posuto ni tegami ga todoki mashita.",
+      "translation": "郵件到了郵筒。",
+      "segments": [
+        {
+          "text": "ポスト",
+          "furigana": ""
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "手紙",
+          "furigana": "てがみ"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "届き",
+          "furigana": "とどき"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "potetosarada ga suki desu.",
+      "translation": "我喜欢馬鈴薯沙拉。",
+      "segments": [
+        {
+          "text": "ポテトサラダ",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "kya": [
+    {
+      "category": "生活起居",
+      "romaji": "kyashana imouto gaimasu.",
+      "translation": "有个苗條的妹妹。",
+      "segments": [
+        {
+          "text": "きゃしゃな",
+          "furigana": ""
+        },
+        {
+          "text": "妹",
+          "furigana": "いもうと"
+        },
+        {
+          "text": "がいます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "kafe dekyara menyuu yarimasu.",
+      "translation": "在咖啡廳做角色菜單活動。",
+      "segments": [
+        {
+          "text": "カフェ",
+          "furigana": ""
+        },
+        {
+          "text": "できゃら",
+          "furigana": ""
+        },
+        {
+          "text": "メニュー",
+          "furigana": ""
+        },
+        {
+          "text": "やります",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "kyu": [
+    {
+      "category": "日常飲食",
+      "romaji": "kyuupii no mayoneezu ga suki desu.",
+      "translation": "喜歡丘比的美乃滋。",
+      "segments": [
+        {
+          "text": "キューピー",
+          "furigana": ""
+        },
+        {
+          "text": "の",
+          "furigana": ""
+        },
+        {
+          "text": "マヨネーズ",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "kyuuriwo kitsu te sarada nishimasu.",
+      "translation": "把小黃瓜切片做成沙拉。",
+      "segments": [
+        {
+          "text": "きゅうりを",
+          "furigana": ""
+        },
+        {
+          "text": "切っ",
+          "furigana": "きっ"
+        },
+        {
+          "text": "て",
+          "furigana": ""
+        },
+        {
+          "text": "サラダ",
+          "furigana": ""
+        },
+        {
+          "text": "にします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "kyo": [
+    {
+      "category": "生活起居",
+      "romaji": "kyouha tenki ga yoi desu.",
+      "translation": "今天天氣很好。",
+      "segments": [
+        {
+          "text": "きょうは",
+          "furigana": ""
+        },
+        {
+          "text": "天気",
+          "furigana": "てんき"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "良い",
+          "furigana": "よい"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "kyouha naniwo tabe masuka.",
+      "translation": "今天吃什麼？",
+      "segments": [
+        {
+          "text": "きょうは",
+          "furigana": ""
+        },
+        {
+          "text": "何を",
+          "furigana": "なにを"
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ますか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "sha": [
+    {
+      "category": "日常飲食",
+      "romaji": "shanpuu de atama wo arai masu.",
+      "translation": "用洗髮精洗頭。",
+      "segments": [
+        {
+          "text": "シャンプー",
+          "furigana": ""
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "頭",
+          "furigana": "あたま"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "洗い",
+          "furigana": "あらい"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "shashin wo tori masu.",
+      "translation": "拍照。",
+      "segments": [
+        {
+          "text": "写真",
+          "furigana": "しゃしん"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "撮り",
+          "furigana": "とり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "shu": [
+    {
+      "category": "生活起居",
+      "romaji": "watashi ha shodou wo naratsu teimasu.",
+      "translation": "我正在學習書法。",
+      "segments": [
+        {
+          "text": "私",
+          "furigana": "わたし"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "書道",
+          "furigana": "しょどう"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "習っ",
+          "furigana": "ならっ"
+        },
+        {
+          "text": "ています",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "sushi ga suki desu.",
+      "translation": "我喜欢壽司。",
+      "segments": [
+        {
+          "text": "寿司",
+          "furigana": "すし"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "sho": [
+    {
+      "category": "生活起居",
+      "romaji": "asa shawaa wo abi masu.",
+      "translation": "早上洗澡。",
+      "segments": [
+        {
+          "text": "朝",
+          "furigana": "あさ"
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "シャワー",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "浴び",
+          "furigana": "あび"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "shoppingu woshite atarashii fuku wo kai mashita.",
+      "translation": "去購物，買了新衣服。",
+      "segments": [
+        {
+          "text": "ショッピング",
+          "furigana": ""
+        },
+        {
+          "text": "をして",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "新しい",
+          "furigana": "あたらしい"
+        },
+        {
+          "text": "服",
+          "furigana": "ふく"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "買い",
+          "furigana": "かい"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "cha": [
+    {
+      "category": "日常飲食",
+      "romaji": "chaahan ga suki desu.",
+      "translation": "我喜欢炒飯。",
+      "segments": [
+        {
+          "text": "チャーハン",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "chaimu ga nari mashita.",
+      "translation": "門鈴響了。",
+      "segments": [
+        {
+          "text": "チャイム",
+          "furigana": ""
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "鳴り",
+          "furigana": "なり"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "chu": [
+    {
+      "category": "日常生活",
+      "romaji": "chuu wo nomi masu.",
+      "translation": "喝果汁。",
+      "segments": [
+        {
+          "text": "チュウ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "家庭",
+      "romaji": "kazoku to kouen de pikunikku woshimasu.",
+      "translation": "和家人在公園野餐。",
+      "segments": [
+        {
+          "text": "家族",
+          "furigana": "かぞく"
+        },
+        {
+          "text": "と",
+          "furigana": ""
+        },
+        {
+          "text": "公園",
+          "furigana": "こうえん"
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "ピクニック",
+          "furigana": ""
+        },
+        {
+          "text": "をします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "cho": [
+    {
+      "category": "日常飲食",
+      "romaji": "choko wo tabe masu.",
+      "translation": "吃巧克力。",
+      "segments": [
+        {
+          "text": "チョコ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "choppiri samui desu.",
+      "translation": "有點冷。",
+      "segments": [
+        {
+          "text": "ちょっぴり",
+          "furigana": ""
+        },
+        {
+          "text": "寒い",
+          "furigana": "さむい"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "nya": [
+    {
+      "category": "生活起居",
+      "romaji": "nyankoga nete imasu.",
+      "translation": "貓咪在睡覺。",
+      "segments": [
+        {
+          "text": "にゃんこが",
+          "furigana": ""
+        },
+        {
+          "text": "寝て",
+          "furigana": "ねて"
+        },
+        {
+          "text": "います",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "ninjinwo tabe masu.",
+      "translation": "吃紅蘿蔔。",
+      "segments": [
+        {
+          "text": "にんじんを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "nyu": [
+    {
+      "category": "日常飲食",
+      "romaji": "nyuudoruwo nomi masu.",
+      "translation": "喝牛奶。",
+      "segments": [
+        {
+          "text": "にゅうどるを",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "nyuutouwo tabe masu.",
+      "translation": "吃牛油。",
+      "segments": [
+        {
+          "text": "にゅうとうを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "nyo": [
+    {
+      "category": "生活起居",
+      "romaji": "nyorukanha fuyu ni tsukai masu.",
+      "translation": "羽絨衣冬天穿。",
+      "segments": [
+        {
+          "text": "にょるかんは",
+          "furigana": ""
+        },
+        {
+          "text": "冬",
+          "furigana": "ふゆ"
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "使い",
+          "furigana": "つかい"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "nyoorooha tsumetai nomimono desu.",
+      "translation": "奶昔是冷飲。",
+      "segments": [
+        {
+          "text": "にょーろーは",
+          "furigana": ""
+        },
+        {
+          "text": "冷たい",
+          "furigana": "つめたい"
+        },
+        {
+          "text": "飲み物",
+          "furigana": "のみもの"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "hya": [
+    {
+      "category": "日常飲食",
+      "romaji": "hyaku en no pan wo kai mashita.",
+      "translation": "買了一百円的麵包。",
+      "segments": [
+        {
+          "text": "ひゃく",
+          "furigana": ""
+        },
+        {
+          "text": "円",
+          "furigana": "えん"
+        },
+        {
+          "text": "の",
+          "furigana": ""
+        },
+        {
+          "text": "パン",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "買い",
+          "furigana": "かい"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "hyaku satsu no hon wo yomi mashita.",
+      "translation": "讀了一百本的書。",
+      "segments": [
+        {
+          "text": "ひゃく",
+          "furigana": ""
+        },
+        {
+          "text": "冊",
+          "furigana": "さつ"
+        },
+        {
+          "text": "の",
+          "furigana": ""
+        },
+        {
+          "text": "本",
+          "furigana": "ほん"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "読み",
+          "furigana": "よみ"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "hyu": [
+    {
+      "category": "日常飲食",
+      "romaji": "hyuugatsunihaosechi ryouri wo tabe masu.",
+      "translation": "新年時會吃年菜。",
+      "segments": [
+        {
+          "text": "ひゅうがつにはおせち",
+          "furigana": ""
+        },
+        {
+          "text": "料理",
+          "furigana": "りょうり"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "hyuruhyuru kaze ga fui teimasu samui desune.",
+      "translation": "呼呼地刮著風，真冷啊。",
+      "segments": [
+        {
+          "text": "ひゅるひゅる",
+          "furigana": ""
+        },
+        {
+          "text": "風",
+          "furigana": "かぜ"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "吹い",
+          "furigana": "ふい"
+        },
+        {
+          "text": "ています",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        },
+        {
+          "text": "寒い",
+          "furigana": "さむい"
+        },
+        {
+          "text": "ですね",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "hyo": [
+    {
+      "category": "生活起居",
+      "romaji": "hyottoshite kagi wo wasure mashitaka.",
+      "translation": "難道你忘記帶鑰匙了嗎？",
+      "segments": [
+        {
+          "text": "ひょっとして",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "鍵",
+          "furigana": "かぎ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "忘れ",
+          "furigana": "わすれ"
+        },
+        {
+          "text": "ましたか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "hyottoshite o hara ga ai tandesuka.",
+      "translation": "難道你肚子餓了嗎？",
+      "segments": [
+        {
+          "text": "ひょっとして",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "お",
+          "furigana": ""
+        },
+        {
+          "text": "腹",
+          "furigana": "はら"
+        },
+        {
+          "text": "が",
+          "furigana": ""
+        },
+        {
+          "text": "空い",
+          "furigana": "あい"
+        },
+        {
+          "text": "たんですか",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "mya": [
+    {
+      "category": "日常飲食",
+      "romaji": "miyagewo kai mashita.",
+      "translation": "買了禮物。",
+      "segments": [
+        {
+          "text": "みやげを",
+          "furigana": ""
+        },
+        {
+          "text": "買い",
+          "furigana": "かい"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "miyanonekogakawaiidesu.",
+      "translation": "鄰居的貓很可愛。",
+      "segments": [
+        {
+          "text": "みやのねこがかわいいです",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "myu": [
+    {
+      "category": "日常飲食",
+      "romaji": "myuujikku wo kiki nagara shokuji woshimasu.",
+      "translation": "邊聽音樂邊吃飯。",
+      "segments": [
+        {
+          "text": "ミュージック",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "聞き",
+          "furigana": "きき"
+        },
+        {
+          "text": "ながら",
+          "furigana": ""
+        },
+        {
+          "text": "食事",
+          "furigana": "しょくじ"
+        },
+        {
+          "text": "をします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "myuu sanha neko desu.",
+      "translation": "ミュウ是隻貓。",
+      "segments": [
+        {
+          "text": "ミュウ",
+          "furigana": ""
+        },
+        {
+          "text": "さんは",
+          "furigana": ""
+        },
+        {
+          "text": "猫",
+          "furigana": "ねこ"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "myo": [
+    {
+      "category": "生活起居",
+      "romaji": "myonkowo kite samusa wo fusegi masu.",
+      "translation": "穿著毛衣防止寒冷。",
+      "segments": [
+        {
+          "text": "みょんこを",
+          "furigana": ""
+        },
+        {
+          "text": "着て",
+          "furigana": "きて"
+        },
+        {
+          "text": "寒さ",
+          "furigana": "さむさ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "防ぎ",
+          "furigana": "ふせぎ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "myougawo kuwae te ryouri wo oishiku shimasu.",
+      "translation": "加入茗荷讓料理更美味。",
+      "segments": [
+        {
+          "text": "みょうがを",
+          "furigana": ""
+        },
+        {
+          "text": "加え",
+          "furigana": "くわえ"
+        },
+        {
+          "text": "て",
+          "furigana": ""
+        },
+        {
+          "text": "料理",
+          "furigana": "りょうり"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "美味しく",
+          "furigana": "おいしく"
+        },
+        {
+          "text": "します",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "rya": [
+    {
+      "category": "日常飲食",
+      "romaji": "ryaachanwo tabe masu.",
+      "translation": "吃拉面。",
+      "segments": [
+        {
+          "text": "りゃーちゃんを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "ryankyuuwo arai masu.",
+      "translation": "洗連絡線（洗毛巾）。",
+      "segments": [
+        {
+          "text": "りゃんきゅうを",
+          "furigana": ""
+        },
+        {
+          "text": "洗い",
+          "furigana": "あらい"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ryu": [
+    {
+      "category": "生活起居",
+      "romaji": "ryuuganwokakemasu.",
+      "translation": "戴眼鏡。",
+      "segments": [
+        {
+          "text": "りゅうがんをかけます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常活動",
+      "romaji": "ryuukyuuwo nomi masu.",
+      "translation": "喝綠茶。",
+      "segments": [
+        {
+          "text": "りゅうきゅうを",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ryo": [
+    {
+      "category": "生活起居",
+      "romaji": "ryouriga jouzu desu.",
+      "translation": "廚藝很厲害。",
+      "segments": [
+        {
+          "text": "りょうりが",
+          "furigana": ""
+        },
+        {
+          "text": "上手",
+          "furigana": "じょうず"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "resutoran deryouriwo tabe masu.",
+      "translation": "在餐廳吃料理。",
+      "segments": [
+        {
+          "text": "レストラン",
+          "furigana": ""
+        },
+        {
+          "text": "でりょうりを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "gya": [
+    {
+      "category": "生活起居",
+      "romaji": "gyakushinwokakemasu.",
+      "translation": "掛上浴衣。",
+      "segments": [
+        {
+          "text": "ぎゃくしんをかけます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "gyakuwo nomi masu.",
+      "translation": "喝酸奶。",
+      "segments": [
+        {
+          "text": "ぎゃくを",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "gyu": [
+    {
+      "category": "日常飲食",
+      "romaji": "gyuuninjinha akai desu.",
+      "translation": "紅蘿蔔是紅色的。",
+      "segments": [
+        {
+          "text": "ぎゅうにんじんは",
+          "furigana": ""
+        },
+        {
+          "text": "赤い",
+          "furigana": "あかい"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "gyuudoufuwo tabe runoga suki desu.",
+      "translation": "我喜欢吃豆腐。",
+      "segments": [
+        {
+          "text": "ぎゅうどうふを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "るのが",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "gyo": [
+    {
+      "category": "生活起居",
+      "romaji": "sakana wo tabe runoga suki desu.",
+      "translation": "喜歡吃魚。",
+      "segments": [
+        {
+          "text": "魚",
+          "furigana": "さかな"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "るのが",
+          "furigana": ""
+        },
+        {
+          "text": "好き",
+          "furigana": "すき"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "gyouzawo tabe ni iki mashou.",
+      "translation": "我們去吃餃子吧。",
+      "segments": [
+        {
+          "text": "ぎょうざを",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "に",
+          "furigana": ""
+        },
+        {
+          "text": "行き",
+          "furigana": "いき"
+        },
+        {
+          "text": "ましょう",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ja": [
+    {
+      "category": "生活起居",
+      "romaji": "jankenwoshimasu.",
+      "translation": "玩剪刀石頭布。",
+      "segments": [
+        {
+          "text": "じゃんけんをします",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常問候",
+      "romaji": "konnichiha jamashinaidekudasai.",
+      "translation": "你好，不要打擾我。",
+      "segments": [
+        {
+          "text": "こんにちは",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "じゃましないでください",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "ju": [
+    {
+      "category": "生活起居",
+      "romaji": "juusu wo nomi masu.",
+      "translation": "喝果汁。",
+      "segments": [
+        {
+          "text": "ジュース",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "toshokan de hon wo yomi masu.",
+      "translation": "在圖書館看书。",
+      "segments": [
+        {
+          "text": "図書館",
+          "furigana": "としょかん"
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "本",
+          "furigana": "ほん"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "読み",
+          "furigana": "よみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "jo": [
+    {
+      "category": "生活起居",
+      "romaji": "joo ha kazoku no hitori desu.",
+      "translation": "喬是家裡的一員。",
+      "segments": [
+        {
+          "text": "ジョー",
+          "furigana": ""
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "家族",
+          "furigana": "かぞく"
+        },
+        {
+          "text": "の",
+          "furigana": ""
+        },
+        {
+          "text": "一人",
+          "furigana": "ひとり"
+        },
+        {
+          "text": "です",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "joo hao cha wo nomi masu.",
+      "translation": "喬喝茶。",
+      "segments": [
+        {
+          "text": "ジョー",
+          "furigana": ""
+        },
+        {
+          "text": "はお",
+          "furigana": ""
+        },
+        {
+          "text": "茶",
+          "furigana": "ちゃ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "bya": [
+    {
+      "category": "日常飲食",
+      "romaji": "byakujuha mizu wo nomi mashita.",
+      "translation": "白鯨喝了水。",
+      "segments": [
+        {
+          "text": "びゃくじゅは",
+          "furigana": ""
+        },
+        {
+          "text": "水",
+          "furigana": "みず"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "byankono heya ha katazui teimasu.",
+      "translation": "貓的房間很整潔。",
+      "segments": [
+        {
+          "text": "びゃんこの",
+          "furigana": ""
+        },
+        {
+          "text": "部屋",
+          "furigana": "へや"
+        },
+        {
+          "text": "は",
+          "furigana": ""
+        },
+        {
+          "text": "片付い",
+          "furigana": "かたづい"
+        },
+        {
+          "text": "ています",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "byu": [
+    {
+      "category": "生活起居",
+      "romaji": "byuukinwo harai masu.",
+      "translation": "支付租金。",
+      "segments": [
+        {
+          "text": "びゅうきんを",
+          "furigana": ""
+        },
+        {
+          "text": "払い",
+          "furigana": "はらい"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "resutoran debyuutowo nomi masu.",
+      "translation": "在餐廳喝果汁。",
+      "segments": [
+        {
+          "text": "レストラン",
+          "furigana": ""
+        },
+        {
+          "text": "でびゅーとを",
+          "furigana": ""
+        },
+        {
+          "text": "飲み",
+          "furigana": "のみ"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "byo": [
+    {
+      "category": "生活起居",
+      "romaji": "byouinniikimashita.",
+      "translation": "去了醫院。",
+      "segments": [
+        {
+          "text": "びょういんにいきました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "kaze wo hii tanode byouinhe iki mashita.",
+      "translation": "因為感冒了，所以去了醫院。",
+      "segments": [
+        {
+          "text": "風邪",
+          "furigana": "かぜ"
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "引い",
+          "furigana": "ひい"
+        },
+        {
+          "text": "たので",
+          "furigana": ""
+        },
+        {
+          "text": "、",
+          "furigana": ""
+        },
+        {
+          "text": "びょういんへ",
+          "furigana": ""
+        },
+        {
+          "text": "行き",
+          "furigana": "いき"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "pya": [
+    {
+      "category": "生活起居",
+      "romaji": "pyakonokawaii piasu wo kai mashita.",
+      "translation": "買了一個可愛的皮亞斯。",
+      "segments": [
+        {
+          "text": "ぴゃこのかわいい",
+          "furigana": ""
+        },
+        {
+          "text": "ピアス",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "買い",
+          "furigana": "かい"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常飲食",
+      "romaji": "piyano mise de piza wo tabe mashita.",
+      "translation": "在比亞的店裡吃了比薩。",
+      "segments": [
+        {
+          "text": "ぴやの",
+          "furigana": ""
+        },
+        {
+          "text": "店",
+          "furigana": "みせ"
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "ピザ",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "食べ",
+          "furigana": "たべ"
+        },
+        {
+          "text": "ました",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "pyu": [
+    {
+      "category": "日常飲食",
+      "romaji": "pyuuraa de juusu wo tsukuri masu.",
+      "translation": "用榨汁機做果汁。",
+      "segments": [
+        {
+          "text": "ピューラー",
+          "furigana": ""
+        },
+        {
+          "text": "で",
+          "furigana": ""
+        },
+        {
+          "text": "ジュース",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "作り",
+          "furigana": "つくり"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "生活起居",
+      "romaji": "pyutto shawaa wo abi masu.",
+      "translation": "沖個淋浴。",
+      "segments": [
+        {
+          "text": "ぴゅっと",
+          "furigana": ""
+        },
+        {
+          "text": "シャワー",
+          "furigana": ""
+        },
+        {
+          "text": "を",
+          "furigana": ""
+        },
+        {
+          "text": "浴び",
+          "furigana": "あび"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ],
+  "pyo": [
+    {
+      "category": "生活起居",
+      "romaji": "pyonpyon hane masu.",
+      "translation": "蹦蹦跳跳。",
+      "segments": [
+        {
+          "text": "ぴょんぴょん",
+          "furigana": ""
+        },
+        {
+          "text": "跳ね",
+          "furigana": "はね"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    },
+    {
+      "category": "日常活動",
+      "romaji": "kouen depyonpyon hane te asobi masu.",
+      "translation": "在公園裡蹦蹦跳跳地玩。",
+      "segments": [
+        {
+          "text": "公園",
+          "furigana": "こうえん"
+        },
+        {
+          "text": "でぴょんぴょん",
+          "furigana": ""
+        },
+        {
+          "text": "跳ね",
+          "furigana": "はね"
+        },
+        {
+          "text": "て",
+          "furigana": ""
+        },
+        {
+          "text": "遊び",
+          "furigana": "あそび"
+        },
+        {
+          "text": "ます",
+          "furigana": ""
+        },
+        {
+          "text": "。",
+          "furigana": ""
+        }
+      ]
+    }
+  ]
+}
