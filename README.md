@@ -1,4 +1,4 @@
-      # KanaVox - 五十音與 AI 日語發音學習工作台
+# KanaVox - 五十音與 AI 日語發音學習工作台
 
 <p align="center">
   <strong>專為消除「假名記憶盲點」與「發音條件反射訓練」設計的 Windows 原生桌面工作台</strong>
