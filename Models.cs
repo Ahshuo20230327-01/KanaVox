@@ -46,11 +46,61 @@ namespace KanaVox
         public string LastAiLevel { get; set; }
         public string LastOllamaModel { get; set; }
 
+        // 個人弱點錯題統計字典（Key：平假名，Value：累計錯誤權重分數）
+        public Dictionary<string, int> KanaMistakeCounts { get; set; }
+
         public WindowSettings()
         {
             LastAiTopic = "日常會話";
             LastAiLevel = "N5";
             LastOllamaModel = "";
+            KanaMistakeCounts = new Dictionary<string, int>();
+        }
+
+        public void RecordKanaMistake(string hiragana, int weight = 2)
+        {
+            if (string.IsNullOrEmpty(hiragana)) return;
+            if (KanaMistakeCounts == null) KanaMistakeCounts = new Dictionary<string, int>();
+
+            int current = 0;
+            KanaMistakeCounts.TryGetValue(hiragana, out current);
+            KanaMistakeCounts[hiragana] = current + Math.Max(1, weight);
+        }
+
+        public void RecordKanaSuccess(string hiragana, int reduction = 1)
+        {
+            if (string.IsNullOrEmpty(hiragana) || KanaMistakeCounts == null) return;
+
+            int current = 0;
+            if (KanaMistakeCounts.TryGetValue(hiragana, out current))
+            {
+                int next = current - Math.Max(1, reduction);
+                if (next <= 0)
+                    KanaMistakeCounts.Remove(hiragana);
+                else
+                    KanaMistakeCounts[hiragana] = next;
+            }
+        }
+
+        public int GetMistakeScore(string hiragana)
+        {
+            if (string.IsNullOrEmpty(hiragana) || KanaMistakeCounts == null) return 0;
+            int score = 0;
+            KanaMistakeCounts.TryGetValue(hiragana, out score);
+            return score;
+        }
+
+        public List<string> GetTopWeaknessHiragana(int maxCount = 10)
+        {
+            if (KanaMistakeCounts == null || KanaMistakeCounts.Count == 0)
+                return new List<string>();
+
+            return KanaMistakeCounts
+                .Where(kv => kv.Value > 0)
+                .OrderByDescending(kv => kv.Value)
+                .Take(maxCount)
+                .Select(kv => kv.Key)
+                .ToList();
         }
 
         public bool IsVisibleOnAnyScreen()
@@ -77,6 +127,7 @@ namespace KanaVox
                         if (string.IsNullOrEmpty(s.LastAiTopic)) s.LastAiTopic = "日常會話";
                         if (string.IsNullOrEmpty(s.LastAiLevel)) s.LastAiLevel = "N5";
                         if (s.LastOllamaModel == null) s.LastOllamaModel = "";
+                        if (s.KanaMistakeCounts == null) s.KanaMistakeCounts = new Dictionary<string, int>();
                         return s;
                     }
                 }
@@ -220,6 +271,15 @@ namespace KanaVox
 
     public static class KanaRepository
     {
+        public static List<KanaItem> GetAllKanaItems()
+        {
+            var all = new List<KanaItem>();
+            all.AddRange(GetSeionList());
+            all.AddRange(GetDakuonList());
+            all.AddRange(GetYoonList());
+            return all.Where(k => !k.IsEmptySlot).ToList();
+        }
+
         public static List<KanaItem> GetSeionList()
         {
             return new List<KanaItem>

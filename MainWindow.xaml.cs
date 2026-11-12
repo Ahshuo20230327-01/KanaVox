@@ -24,6 +24,9 @@ namespace KanaVox
         private KanaItem _selectedKana;
         private bool _isUiInitialized = false;
 
+        // 應用程式視窗與個人弱點統計持久化設定實體
+        private WindowSettings _settings;
+
         // 暫存上次選用的 Ollama 模型名稱，供非同步清單載入後還原
         private string _savedOllamaModel = "";
 
@@ -37,6 +40,11 @@ namespace KanaVox
         private string _loopingText = null;
         private Button _activeLoopButton = null;
 
+        // 麥克風跟讀回音比對狀態管理
+        private Button _activeEchoButton = null;
+        private string _echoTargetText = null;
+        private readonly DispatcherTimer _echoSafetyTimer;
+
         private readonly Random _rng = new Random();
         private KanaItem _currentQuizAnswer = null;
         private bool _quizAnswered = false;
@@ -46,8 +54,10 @@ namespace KanaVox
         private Button[] _choiceButtons;
 
         private readonly List<CheckBox> _blitzRowCheckBoxes = new List<CheckBox>();
+        private CheckBox _chkBlitzWeaknessOnly = null;
         private KanaItem _currentBlitzKana = null;
         private bool _currentBlitzShowKata = false;
+        private bool _currentBlitzHadMistake = false;
         private readonly Stopwatch _blitzStopwatch = new Stopwatch();
         private int _blitzCompletedCount = 0;
         private double _blitzTotalSeconds = 0;
@@ -80,6 +90,17 @@ namespace KanaVox
                 }
             };
 
+            // 錄音安全上限計時器（最長 8 秒自動結束收音並進入回音比對）
+            _echoSafetyTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+            _echoSafetyTimer.Tick += async (s, e) =>
+            {
+                _echoSafetyTimer.Stop();
+                if (_audioService.IsRecording && _activeEchoButton != null && !string.IsNullOrEmpty(_echoTargetText))
+                {
+                    await FinishRecordingAndPlayEchoAsync(_echoTargetText, _activeEchoButton);
+                }
+            };
+
             _selectedKana = new KanaItem("あ", "ア", "a", KanaCategory.Seion, false, "あ行", "安", "阿");
 
             // 統一由儲存庫載入例句清單（首次啟動自動寫入預設種子範例，後續完全依本機檔案為準）
@@ -97,9 +118,7 @@ namespace KanaVox
 
             UpdateStatusBar();
 
-            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
-                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
-            if (isOllamaActive)
+            if (IsOllamaEngineSelected())
             {
                 InitializeOllamaModelsAsync();
             }
@@ -108,19 +127,29 @@ namespace KanaVox
             EnsureProxyRunningIfNeeded();
         }
 
+        // 單一真相來源：統一判定目前標音解析引擎是否為本機 Ollama 模式
+        private bool IsOllamaEngineSelected()
+        {
+            if (CmbAnalysisEngine != null)
+            {
+                return CmbAnalysisEngine.SelectedIndex == 1;
+            }
+            return ChkEnableOllama != null && ChkEnableOllama.IsChecked == true;
+        }
+
         private void ApplySavedWindowPlacement()
         {
             MinWidth = 1050;
             MinHeight = 780;
 
-            var settings = WindowSettings.Load();
-            if (settings.IsVisibleOnAnyScreen())
+            _settings = WindowSettings.Load();
+            if (_settings.IsVisibleOnAnyScreen())
             {
                 WindowStartupLocation = WindowStartupLocation.Manual;
-                Left = settings.Left;
-                Top = settings.Top;
-                Width = settings.Width;
-                Height = settings.Height;
+                Left = _settings.Left;
+                Top = _settings.Top;
+                Width = _settings.Width;
+                Height = _settings.Height;
             }
             else
             {
@@ -132,11 +161,11 @@ namespace KanaVox
             // 1. 恢復發音引擎選擇
             if (CmbTtsEngine != null)
             {
-                CmbTtsEngine.SelectedIndex = (settings.TtsEngine == TtsEngineMode.Sapi) ? 1 : 0;
+                CmbTtsEngine.SelectedIndex = (_settings.TtsEngine == TtsEngineMode.Sapi) ? 1 : 0;
             }
 
-            // 2. 恢復標音解析引擎選擇
-            bool isOllama = (settings.AnalysisEngine == AnalysisEngineMode.Ollama) || settings.EnableOllama;
+            // 2. 恢復標音解析引擎選擇（以 AnalysisEngine 枚舉為主要依據）
+            bool isOllama = (_settings.AnalysisEngine == AnalysisEngineMode.Ollama);
             if (CmbAnalysisEngine != null)
             {
                 CmbAnalysisEngine.SelectedIndex = isOllama ? 1 : 0;
@@ -149,7 +178,7 @@ namespace KanaVox
             // 3. 恢復 AI 難度、情境風格與模型名稱偏好
             if (CmbAiLevel != null)
             {
-                string savedLevel = string.IsNullOrEmpty(settings.LastAiLevel) ? "N5" : settings.LastAiLevel;
+                string savedLevel = string.IsNullOrEmpty(_settings.LastAiLevel) ? "N5" : _settings.LastAiLevel;
                 if (savedLevel.Contains("N4")) CmbAiLevel.SelectedIndex = 1;
                 else if (savedLevel.Contains("N3")) CmbAiLevel.SelectedIndex = 2;
                 else CmbAiLevel.SelectedIndex = 0;
@@ -157,16 +186,16 @@ namespace KanaVox
 
             if (CmbAiTopic != null)
             {
-                CmbAiTopic.Text = string.IsNullOrEmpty(settings.LastAiTopic) ? "日常會話" : settings.LastAiTopic;
+                CmbAiTopic.Text = string.IsNullOrEmpty(_settings.LastAiTopic) ? "日常會話" : _settings.LastAiTopic;
             }
 
-            _savedOllamaModel = settings.LastOllamaModel ?? "";
+            _savedOllamaModel = _settings.LastOllamaModel ?? "";
 
             UpdateAnalysisUi(isOllama);
 
             Loaded += (s, e) =>
             {
-                if (settings.IsMaximized)
+                if (_settings.IsMaximized)
                 {
                     WindowState = WindowState.Maximized;
                 }
@@ -178,7 +207,7 @@ namespace KanaVox
             // 視窗關閉前徹底結束背景 Python 處理程序與其子程序
             StopProxyProcess();
 
-            bool isOllama = (CmbAnalysisEngine != null) ? (CmbAnalysisEngine.SelectedIndex == 1) : (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+            bool isOllama = IsOllamaEngineSelected();
             bool isSapi = (CmbTtsEngine != null && CmbTtsEngine.SelectedIndex == 1);
 
             // 取得當前選定之難度字串
@@ -202,35 +231,34 @@ namespace KanaVox
                 ? _ollamaService.CurrentModel
                 : _savedOllamaModel;
 
-            var settings = new WindowSettings
-            {
-                HasSavedPosition = true,
-                IsMaximized = (WindowState == WindowState.Maximized),
-                EnableOllama = isOllama,
-                AutoStartTtsProxy = true,
-                TtsEngine = isSapi ? TtsEngineMode.Sapi : TtsEngineMode.EdgeTts,
-                AnalysisEngine = isOllama ? AnalysisEngineMode.Ollama : AnalysisEngineMode.PyKakasi,
-                LastAiLevel = currentLevel,
-                LastAiTopic = currentTopic,
-                LastOllamaModel = currentModel
-            };
+            if (_settings == null) _settings = new WindowSettings();
+
+            _settings.HasSavedPosition = true;
+            _settings.IsMaximized = (WindowState == WindowState.Maximized);
+            _settings.EnableOllama = isOllama;
+            _settings.AutoStartTtsProxy = true;
+            _settings.TtsEngine = isSapi ? TtsEngineMode.Sapi : TtsEngineMode.EdgeTts;
+            _settings.AnalysisEngine = isOllama ? AnalysisEngineMode.Ollama : AnalysisEngineMode.PyKakasi;
+            _settings.LastAiLevel = currentLevel;
+            _settings.LastAiTopic = currentTopic;
+            _settings.LastOllamaModel = currentModel;
 
             if (WindowState == WindowState.Maximized)
             {
-                settings.Left = RestoreBounds.Left;
-                settings.Top = RestoreBounds.Top;
-                settings.Width = RestoreBounds.Width >= 800 ? RestoreBounds.Width : 1360;
-                settings.Height = RestoreBounds.Height >= 600 ? RestoreBounds.Height : 1220;
+                _settings.Left = RestoreBounds.Left;
+                _settings.Top = RestoreBounds.Top;
+                _settings.Width = RestoreBounds.Width >= 800 ? RestoreBounds.Width : 1360;
+                _settings.Height = RestoreBounds.Height >= 600 ? RestoreBounds.Height : 1220;
             }
             else
             {
-                settings.Left = Left;
-                settings.Top = Top;
-                settings.Width = ActualWidth >= 800 ? ActualWidth : 1360;
-                settings.Height = ActualHeight >= 600 ? ActualHeight : 1220;
+                _settings.Left = Left;
+                _settings.Top = Top;
+                _settings.Width = ActualWidth >= 800 ? ActualWidth : 1360;
+                _settings.Height = ActualHeight >= 600 ? ActualHeight : 1220;
             }
 
-            settings.Save();
+            _settings.Save();
             base.OnClosing(e);
         }
 
@@ -238,7 +266,7 @@ namespace KanaVox
         private void EnsureProxyRunningIfNeeded()
         {
             bool needEdgeTts = (CmbTtsEngine == null || CmbTtsEngine.SelectedIndex == 0);
-            bool needPyKakasi = (CmbAnalysisEngine == null || CmbAnalysisEngine.SelectedIndex == 0);
+            bool needPyKakasi = !IsOllamaEngineSelected();
 
             if (needEdgeTts || needPyKakasi)
             {
@@ -431,7 +459,16 @@ namespace KanaVox
         {
             if (!_isUiInitialized) return;
 
-            bool isOllama = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1);
+            bool isOllama = IsOllamaEngineSelected();
+
+            // 同步更新舊版相容核取方塊，杜絕狀態殘留
+            if (ChkEnableOllama != null && ChkEnableOllama.IsChecked != isOllama)
+            {
+                _isUiInitialized = false;
+                ChkEnableOllama.IsChecked = isOllama;
+                _isUiInitialized = true;
+            }
+
             UpdateAnalysisUi(isOllama);
             RenderFilteredSentences();
 
@@ -627,10 +664,28 @@ namespace KanaVox
             bool maskSub = ChkMaskSubText != null && ChkMaskSubText.IsChecked == true;
             bool showOrigin = ChkShowOrigin != null && ChkShowOrigin.IsChecked == true;
 
+            var weaknessBorderBrush = new SolidColorBrush(Color.FromRgb(243, 139, 168)); // 珊瑚紅弱點外框
+
             foreach (Button btn in _kanaButtons)
             {
                 var item = btn.Tag as KanaItem;
                 if (item == null) continue;
+
+                int mistakeScore = _settings != null ? _settings.GetMistakeScore(item.Hiragana) : 0;
+                bool isWeakness = mistakeScore > 0;
+
+                if (isWeakness)
+                {
+                    btn.BorderBrush = weaknessBorderBrush;
+                    btn.BorderThickness = new Thickness(1.8);
+                    btn.ToolTip = string.Format("🎯 個人弱點假名（錯誤權重：{0}）｜在閃卡或盲聽測驗答對可逐步消除標記", mistakeScore);
+                }
+                else
+                {
+                    btn.ClearValue(Button.BorderBrushProperty);
+                    btn.ClearValue(Button.BorderThicknessProperty);
+                    btn.ToolTip = null;
+                }
 
                 string mainText = showHira ? item.Hiragana : (showKata ? item.Katakana : item.Romaji);
                 string subText = showHira ? (item.Katakana + " · " + item.Romaji)
@@ -639,6 +694,19 @@ namespace KanaVox
                 bool isRevealed = !maskSub || _revealedMaskedKana.Contains(item);
 
                 var cellGrid = new Grid();
+
+                if (isWeakness)
+                {
+                    cellGrid.Children.Add(new TextBlock
+                    {
+                        Text = "●",
+                        FontSize = 9,
+                        Foreground = weaknessBorderBrush,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        Margin = new Thickness(2, -1, 0, 0)
+                    });
+                }
 
                 if (showOrigin && (!string.IsNullOrEmpty(item.HiraOrigin) || !string.IsNullOrEmpty(item.KataOrigin)))
                 {
@@ -741,6 +809,42 @@ namespace KanaVox
             WrapBlitzRows.Children.Clear();
             _blitzRowCheckBoxes.Clear();
 
+            // 加入「專攻弱點 Top 10」自適應特訓開關
+            _chkBlitzWeaknessOnly = new CheckBox
+            {
+                Content = "🎯 專攻弱點 (Top 10)",
+                IsChecked = false,
+                Foreground = new SolidColorBrush(Color.FromRgb(243, 139, 168)),
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 3, 14, 3),
+                FontSize = 12.5,
+                ToolTip = "自動鎖定閃卡與盲聽測驗中最常答錯的前 10 個弱點假名進行集中特訓"
+            };
+            _chkBlitzWeaknessOnly.Checked += (s, e) =>
+            {
+                if (!_isUiInitialized) return;
+                _isUiInitialized = false;
+                foreach (var cb in _blitzRowCheckBoxes) cb.IsChecked = false;
+                _isUiInitialized = true;
+                NextBlitzCard();
+            };
+            _chkBlitzWeaknessOnly.Unchecked += (s, e) =>
+            {
+                if (!_isUiInitialized) return;
+                if (!_blitzRowCheckBoxes.Any(c => c.IsChecked == true))
+                {
+                    _isUiInitialized = false;
+                    foreach (var cb in _blitzRowCheckBoxes)
+                    {
+                        string t = cb.Tag != null ? cb.Tag.ToString() : "";
+                        cb.IsChecked = (t == "な行" || t == "ま行");
+                    }
+                    _isUiInitialized = true;
+                }
+                NextBlitzCard();
+            };
+            WrapBlitzRows.Children.Add(_chkBlitzWeaknessOnly);
+
             string[] rowNames = new[] { "あ行", "か行", "さ行", "た行", "な行", "は行", "ま行", "や行", "ら行", "わ行", "濁音", "拗音" };
             foreach (string r in rowNames)
             {
@@ -754,7 +858,17 @@ namespace KanaVox
                     Margin = new Thickness(0, 3, 12, 3),
                     FontSize = 12.5
                 };
-                cb.Checked += (s, e) => { if (_isUiInitialized) NextBlitzCard(); };
+                cb.Checked += (s, e) =>
+                {
+                    if (!_isUiInitialized) return;
+                    if (_chkBlitzWeaknessOnly != null && _chkBlitzWeaknessOnly.IsChecked == true)
+                    {
+                        _isUiInitialized = false;
+                        _chkBlitzWeaknessOnly.IsChecked = false;
+                        _isUiInitialized = true;
+                    }
+                    NextBlitzCard();
+                };
                 cb.Unchecked += (s, e) => { if (_isUiInitialized) NextBlitzCard(); };
                 _blitzRowCheckBoxes.Add(cb);
                 WrapBlitzRows.Children.Add(cb);
@@ -897,16 +1011,20 @@ namespace KanaVox
 
         private List<KanaItem> GetActiveBlitzPool()
         {
+            if (_chkBlitzWeaknessOnly != null && _chkBlitzWeaknessOnly.IsChecked == true)
+            {
+                var topWeak = _settings != null ? _settings.GetTopWeaknessHiragana(10) : new List<string>();
+                if (topWeak.Count == 0) return new List<KanaItem>();
+
+                var weakSet = new HashSet<string>(topWeak);
+                return KanaRepository.GetAllKanaItems().Where(k => weakSet.Contains(k.Hiragana)).ToList();
+            }
+
             var selectedRows = new HashSet<string>(
                 _blitzRowCheckBoxes.Where(c => c.IsChecked == true && c.Tag != null).Select(c => c.Tag.ToString())
             );
 
-            var all = new List<KanaItem>();
-            all.AddRange(KanaRepository.GetSeionList());
-            all.AddRange(KanaRepository.GetDakuonList());
-            all.AddRange(KanaRepository.GetYoonList());
-
-            return all.Where(k => !k.IsEmptySlot && selectedRows.Contains(k.RowGroup)).ToList();
+            return KanaRepository.GetAllKanaItems().Where(k => selectedRows.Contains(k.RowGroup)).ToList();
         }
 
         private void NextBlitzCard()
@@ -917,7 +1035,16 @@ namespace KanaVox
                 _currentBlitzKana = null;
                 TxtBlitzChar.Text = "—";
                 TxtBlitzOriginHint.Text = "";
-                TxtBlitzFeedback.Text = "⚠️ 請先在上方至少勾選 1 行要特訓的假名範圍！";
+                if (_chkBlitzWeaknessOnly != null && _chkBlitzWeaknessOnly.IsChecked == true)
+                {
+                    TxtBlitzFeedback.Text = "🎉 目前沒有待加強的弱點假名！請先勾選其他行或至「盲聽四選一」練習，答錯的字會自動收入弱點池。";
+                    TxtBlitzFeedback.Foreground = new SolidColorBrush(Color.FromRgb(166, 227, 161));
+                }
+                else
+                {
+                    TxtBlitzFeedback.Text = "⚠️ 請先在上方至少勾選 1 行要特訓的假名範圍！";
+                    TxtBlitzFeedback.Foreground = new SolidColorBrush(Color.FromRgb(249, 226, 175));
+                }
                 return;
             }
 
@@ -932,6 +1059,7 @@ namespace KanaVox
             }
 
             _currentBlitzKana = next;
+            _currentBlitzHadMistake = false;
             int scriptMode = CmbBlitzScript != null ? CmbBlitzScript.SelectedIndex : 0;
             _currentBlitzShowKata = scriptMode == 1 || (scriptMode == 2 && _rng.Next(2) == 1);
 
@@ -939,7 +1067,16 @@ namespace KanaVox
             TxtBlitzChar.Foreground = new SolidColorBrush(Color.FromRgb(205, 214, 244));
             BorderBlitzCard.BorderBrush = new SolidColorBrush(Color.FromRgb(137, 180, 250));
             TxtBlitzOriginHint.Text = "";
-            TxtBlitzRowHint.Text = string.Format("【{0}｜題池共 {1} 字】可用實體鍵盤敲擊，或直接用滑鼠點選下方小鍵盤", _currentBlitzKana.RowGroup, pool.Count);
+
+            if (_chkBlitzWeaknessOnly != null && _chkBlitzWeaknessOnly.IsChecked == true)
+            {
+                int score = _settings != null ? _settings.GetMistakeScore(_currentBlitzKana.Hiragana) : 0;
+                TxtBlitzRowHint.Text = string.Format("【🎯 弱點特訓 Top {0}｜目前錯誤權重：{1}】可用實體鍵盤敲擊或點選下方小鍵盤", pool.Count, score);
+            }
+            else
+            {
+                TxtBlitzRowHint.Text = string.Format("【{0}｜題池共 {1} 字】可用實體鍵盤敲擊，或直接用滑鼠點選下方小鍵盤", _currentBlitzKana.RowGroup, pool.Count);
+            }
 
             _isHandlingBlitzInput = true;
             TxtBlitzInput.Text = "";
@@ -1005,6 +1142,14 @@ namespace KanaVox
                 bool isFastReflex = sec <= reflexLimit;
                 if (isFastReflex) _blitzFastStreak++; else _blitzFastStreak = 0;
 
+                // 若本題未出錯且直接答對，遞減該假名錯誤權重並更新主表標記
+                if (!_currentBlitzHadMistake && _settings != null)
+                {
+                    _settings.RecordKanaSuccess(_currentBlitzKana.Hiragana, 1);
+                    _settings.Save();
+                    RefreshKanaButtonLabels();
+                }
+
                 _audioService.PlayKana(_currentBlitzKana);
 
                 double avg = _blitzTotalSeconds / _blitzCompletedCount;
@@ -1042,6 +1187,16 @@ namespace KanaVox
         {
             if (_currentBlitzKana == null) return;
             _blitzFastStreak = 0;
+
+            // 每張卡片首次失誤或請求提示時，累加該假名的弱點錯誤權重
+            if (!_currentBlitzHadMistake && _settings != null)
+            {
+                _currentBlitzHadMistake = true;
+                _settings.RecordKanaMistake(_currentBlitzKana.Hiragana, 2);
+                _settings.Save();
+                RefreshKanaButtonLabels();
+            }
+
             _audioService.PlayKana(_currentBlitzKana);
 
             string origin = _currentBlitzShowKata ? _currentBlitzKana.KataOrigin : _currentBlitzKana.HiraOrigin;
@@ -1146,6 +1301,7 @@ namespace KanaVox
         private void BtnBlitzSelectAll_Click(object sender, RoutedEventArgs e)
         {
             _isUiInitialized = false;
+            if (_chkBlitzWeaknessOnly != null) _chkBlitzWeaknessOnly.IsChecked = false;
             foreach (var cb in _blitzRowCheckBoxes)
             {
                 string tag = cb.Tag != null ? cb.Tag.ToString() : "";
@@ -1158,6 +1314,7 @@ namespace KanaVox
         private void BtnBlitzSelectHard_Click(object sender, RoutedEventArgs e)
         {
             _isUiInitialized = false;
+            if (_chkBlitzWeaknessOnly != null) _chkBlitzWeaknessOnly.IsChecked = false;
             string[] hardRows = new[] { "な行", "は行", "ま行", "や行", "ら行", "わ行" };
             foreach (var cb in _blitzRowCheckBoxes)
             {
@@ -1439,6 +1596,14 @@ namespace KanaVox
             {
                 _quizCorrectCount++;
                 _quizStreak++;
+
+                if (_settings != null)
+                {
+                    _settings.RecordKanaSuccess(_currentQuizAnswer.Hiragana, 1);
+                    _settings.Save();
+                    RefreshKanaButtonLabels();
+                }
+
                 clickedBtn.Background = new SolidColorBrush(Color.FromRgb(166, 227, 161));
                 clickedBtn.Foreground = new SolidColorBrush(Color.FromRgb(17, 17, 27));
                 TxtQuizReveal.Foreground = new SolidColorBrush(Color.FromRgb(166, 227, 161));
@@ -1449,6 +1614,14 @@ namespace KanaVox
             else
             {
                 _quizStreak = 0;
+
+                if (_settings != null)
+                {
+                    _settings.RecordKanaMistake(_currentQuizAnswer.Hiragana, 2);
+                    _settings.Save();
+                    RefreshKanaButtonLabels();
+                }
+
                 clickedBtn.Background = new SolidColorBrush(Color.FromRgb(243, 139, 168));
                 clickedBtn.Foreground = new SolidColorBrush(Color.FromRgb(17, 17, 27));
 
@@ -1575,8 +1748,7 @@ namespace KanaVox
 
         private UIElement CreateSentenceCard(SentenceItem s)
         {
-            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
-                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+            bool isOllamaActive = IsOllamaEngineSelected();
             bool hasCachedNote = !string.IsNullOrWhiteSpace(s.AiNote);
 
             var card = new Border
@@ -1790,7 +1962,7 @@ namespace KanaVox
             };
 
             var compactBtnMargin = new Thickness(2, 0, 2, 0);
-            var compactBtnPadding = new Thickness(7, 4, 7, 4);
+            var compactBtnPadding = new Thickness(6, 4, 6, 4);
 
             string rawJp = s.GetRawJapaneseText();
 
@@ -1836,6 +2008,18 @@ namespace KanaVox
                 Tag = rawJp
             };
             loopBtn.Click += (sender, e) => ToggleLoopSentence(rawJp, loopBtn);
+
+            var echoBtn = new Button
+            {
+                Content = "🎙️ 跟讀",
+                Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 12,
+                Margin = compactBtnMargin,
+                Padding = compactBtnPadding,
+                ToolTip = "點擊開始麥克風錄音跟讀，唸完後再次點擊即自動先播放標準發音、再播放您的錄音進行比對",
+                Tag = rawJp
+            };
+            echoBtn.Click += async (sender, e) => await ToggleEchoSentenceAsync(rawJp, echoBtn);
 
             var copyBtn = new Button
             {
@@ -1920,6 +2104,7 @@ namespace KanaVox
             btnPanel.Children.Add(playBtn);
             btnPanel.Children.Add(slowBtn);
             btnPanel.Children.Add(loopBtn);
+            btnPanel.Children.Add(echoBtn);
             btnPanel.Children.Add(copyBtn);
             btnPanel.Children.Add(delBtn);
 
@@ -2066,9 +2251,7 @@ namespace KanaVox
             // 單句解析非同步執行與持久化邏輯（策略 B：pykakasi 模式下嚴格阻斷 Ollama 推論）
             Func<bool, Task> runExplainAsync = async (forceRefresh) =>
             {
-                bool canCallOllama = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
-                                     (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
-                if (!canCallOllama)
+                if (!IsOllamaEngineSelected())
                 {
                     TxtStatusBar.Text = "⚠️ 目前為本地形態素 (pykakasi) 模式，已禁止觸發 AI 推論。";
                     return;
@@ -2141,9 +2324,7 @@ namespace KanaVox
                     return;
                 }
 
-                bool canCallOllama = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
-                                     (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
-                if (!canCallOllama)
+                if (!IsOllamaEngineSelected())
                 {
                     TxtStatusBar.Text = "⚠️ 本地形態素 (pykakasi) 模式下無法生成新解析，請切換至本機 AI 助教 (Ollama)。";
                     return;
@@ -2159,6 +2340,83 @@ namespace KanaVox
 
             card.Child = outerStack;
             return card;
+        }
+
+        // ================= 麥克風跟讀回音比對狀態機 =================
+        private async Task ToggleEchoSentenceAsync(string rawJp, Button echoBtn)
+        {
+            if (string.IsNullOrWhiteSpace(rawJp) || echoBtn == null) return;
+
+            // 若目前這顆按鈕正在錄音中，再次點擊即結束收音並進入回音比對
+            if (_audioService.IsRecording && _activeEchoButton == echoBtn)
+            {
+                await FinishRecordingAndPlayEchoAsync(rawJp, echoBtn);
+                return;
+            }
+
+            // 停止其他播放、循環或他張卡片的錄音狀態
+            StopLooping();
+
+            bool started = _audioService.StartRecording();
+            if (!started)
+            {
+                TxtStatusBar.Text = "⚠️ 無法啟動麥克風錄音，請確認系統預設麥克風已連接並開啟隱私權限。";
+                return;
+            }
+
+            _activeEchoButton = echoBtn;
+            _echoTargetText = rawJp;
+            echoBtn.Background = new SolidColorBrush(Color.FromRgb(243, 139, 168));
+            echoBtn.Foreground = new SolidColorBrush(Color.FromRgb(17, 17, 27));
+            echoBtn.Content = "⏹ 停止";
+
+            _echoSafetyTimer.Start();
+            TxtStatusBar.Text = "🎙️ 正在錄音中... 請對著麥克風朗讀日文例句，唸完後再次點擊「⏹ 停止」進行原音比對（上限 8 秒）。";
+        }
+
+        private async Task FinishRecordingAndPlayEchoAsync(string rawJp, Button echoBtn)
+        {
+            if (_echoSafetyTimer != null) _echoSafetyTimer.Stop();
+
+            bool hasAudio = _audioService.StopRecordingAndSave();
+            if (!hasAudio)
+            {
+                ResetEchoButtonState();
+                TxtStatusBar.Text = "⚠️ 錄音時間過短或未擷取到有效聲音，已取消本次比對。";
+                return;
+            }
+
+            echoBtn.Background = new SolidColorBrush(Color.FromRgb(137, 180, 250));
+            echoBtn.Foreground = new SolidColorBrush(Color.FromRgb(17, 17, 27));
+            echoBtn.Content = "🎧 比對中";
+            echoBtn.IsEnabled = false;
+            TxtStatusBar.Text = "🎧 正在進行回音比對：第 1 拍【標準日文發音】 → 第 2 拍【您的跟讀錄音】...";
+
+            bool completed = await _audioService.PlayEchoComparisonAsync(rawJp);
+
+            // 若未被使用者中途點擊停止或切換其他發音中斷，則恢復按鈕狀態並提示完成
+            if (_activeEchoButton == echoBtn)
+            {
+                ResetEchoButtonState();
+                if (completed)
+                {
+                    TxtStatusBar.Text = "✅ 跟讀回音比對播放完畢！可隨時再次點擊「🎙️ 跟讀」反覆修正語調。";
+                }
+            }
+        }
+
+        private void ResetEchoButtonState()
+        {
+            if (_echoSafetyTimer != null) _echoSafetyTimer.Stop();
+            _echoTargetText = null;
+            if (_activeEchoButton != null)
+            {
+                _activeEchoButton.Background = new SolidColorBrush(Color.FromRgb(69, 71, 90));
+                _activeEchoButton.Foreground = new SolidColorBrush(Color.FromRgb(205, 214, 244));
+                _activeEchoButton.Content = "🎙️ 跟讀";
+                _activeEchoButton.IsEnabled = true;
+                _activeEchoButton = null;
+            }
         }
 
         private void ToggleLoopSentence(string text, Button btn)
@@ -2182,6 +2440,7 @@ namespace KanaVox
         private void StopLooping()
         {
             _audioService.StopAll();
+            ResetEchoButtonState();
             _loopingText = null;
             if (_activeLoopButton != null)
             {
@@ -2221,10 +2480,7 @@ namespace KanaVox
         {
             if (_selectedKana == null) return;
 
-            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
-                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
-
-            if (!isOllamaActive)
+            if (!IsOllamaEngineSelected())
             {
                 // 1. 本機靜態庫 0 毫秒即時載入
                 var presetList = StaticDataService.GetPresetSentences(_selectedKana);
@@ -2321,10 +2577,7 @@ namespace KanaVox
         {
             if (_selectedKana == null) return;
 
-            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
-                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
-
-            if (!isOllamaActive)
+            if (!IsOllamaEngineSelected())
             {
                 // 本機靜態庫 0 毫秒即時呈現
                 string staticTip = StaticDataService.GetMnemonic(_selectedKana);
@@ -2374,13 +2627,10 @@ namespace KanaVox
             string rawText = TxtCustomTts.Text != null ? TxtCustomTts.Text.Trim() : "";
             if (string.IsNullOrEmpty(rawText)) return;
 
-            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
-                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
-
             BtnAiAnalyzeCustom.IsEnabled = false;
             BtnAiAnalyzeCustom.Content = "⏳ 解析中...";
 
-            if (!isOllamaActive)
+            if (!IsOllamaEngineSelected())
             {
                 // 防線：若背景代理尚未在線，由 C# 主動喚醒並等待就緒
                 if (!_audioService.IsProxyOnline)
@@ -2653,9 +2903,7 @@ namespace KanaVox
             }
 
             // 2. 標音解析引擎狀態判定
-            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
-                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
-            string analysisInfo = isOllamaActive
+            string analysisInfo = IsOllamaEngineSelected()
                 ? string.Format("標音：Ollama ({0})", _ollamaService.CurrentModel)
                 : "標音：本地形態素 (pykakasi)";
 
