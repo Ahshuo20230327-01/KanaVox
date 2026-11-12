@@ -52,7 +52,7 @@ namespace KanaVox
         public WindowSettings()
         {
             LastAiTopic = "日常會話";
-            LastAiLevel = "N5";
+            LastAiLevel = "入門";
             LastOllamaModel = "";
             KanaMistakeCounts = new Dictionary<string, int>();
         }
@@ -125,7 +125,7 @@ namespace KanaVox
                     if (s != null)
                     {
                         if (string.IsNullOrEmpty(s.LastAiTopic)) s.LastAiTopic = "日常會話";
-                        if (string.IsNullOrEmpty(s.LastAiLevel)) s.LastAiLevel = "N5";
+                        if (string.IsNullOrEmpty(s.LastAiLevel)) s.LastAiLevel = "入門";
                         if (s.LastOllamaModel == null) s.LastOllamaModel = "";
                         if (s.KanaMistakeCounts == null) s.KanaMistakeCounts = new Dictionary<string, int>();
                         return s;

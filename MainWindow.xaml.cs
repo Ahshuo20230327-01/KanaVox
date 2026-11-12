@@ -137,6 +137,23 @@ namespace KanaVox
             return ChkEnableOllama != null && ChkEnableOllama.IsChecked == true;
         }
 
+        // 共用輔助方法：統一讀取目前選定的 AI 難度等級字串（入門 / N5 / N4 / N3 / N2 / N1）
+        private string GetSelectedAiLevel()
+        {
+            if (CmbAiLevel != null && CmbAiLevel.SelectedItem != null)
+            {
+                var lvlItem = CmbAiLevel.SelectedItem as ComboBoxItem;
+                string lvlText = lvlItem != null ? lvlItem.Content.ToString() : CmbAiLevel.SelectedItem.ToString();
+                if (lvlText.Contains("N1")) return "N1";
+                if (lvlText.Contains("N2")) return "N2";
+                if (lvlText.Contains("N3")) return "N3";
+                if (lvlText.Contains("N4")) return "N4";
+                if (lvlText.Contains("N5")) return "N5";
+                if (lvlText.Contains("入門")) return "入門";
+            }
+            return "入門";
+        }
+
         private void ApplySavedWindowPlacement()
         {
             MinWidth = 1050;
@@ -175,12 +192,15 @@ namespace KanaVox
                 ChkEnableOllama.IsChecked = isOllama;
             }
 
-            // 3. 恢復 AI 難度、情境風格與模型名稱偏好
+            // 3. 恢復 AI 六階難度（0:入門, 1:N5, 2:N4, 3:N3, 4:N2, 5:N1）、情境風格與模型名稱偏好
             if (CmbAiLevel != null)
             {
-                string savedLevel = string.IsNullOrEmpty(_settings.LastAiLevel) ? "N5" : _settings.LastAiLevel;
-                if (savedLevel.Contains("N4")) CmbAiLevel.SelectedIndex = 1;
-                else if (savedLevel.Contains("N3")) CmbAiLevel.SelectedIndex = 2;
+                string savedLevel = string.IsNullOrEmpty(_settings.LastAiLevel) ? "入門" : _settings.LastAiLevel;
+                if (savedLevel.Contains("N1")) CmbAiLevel.SelectedIndex = 5;
+                else if (savedLevel.Contains("N2")) CmbAiLevel.SelectedIndex = 4;
+                else if (savedLevel.Contains("N3")) CmbAiLevel.SelectedIndex = 3;
+                else if (savedLevel.Contains("N4")) CmbAiLevel.SelectedIndex = 2;
+                else if (savedLevel.Contains("N5")) CmbAiLevel.SelectedIndex = 1;
                 else CmbAiLevel.SelectedIndex = 0;
             }
 
@@ -211,15 +231,7 @@ namespace KanaVox
             bool isSapi = (CmbTtsEngine != null && CmbTtsEngine.SelectedIndex == 1);
 
             // 取得當前選定之難度字串
-            string currentLevel = "N5";
-            if (CmbAiLevel != null && CmbAiLevel.SelectedItem != null)
-            {
-                var lvlItem = CmbAiLevel.SelectedItem as ComboBoxItem;
-                string lvlText = lvlItem != null ? lvlItem.Content.ToString() : CmbAiLevel.SelectedItem.ToString();
-                if (lvlText.Contains("N4")) currentLevel = "N4";
-                else if (lvlText.Contains("N3")) currentLevel = "N3";
-                else currentLevel = "N5";
-            }
+            string currentLevel = GetSelectedAiLevel();
 
             // 取得當前輸入或選定之情境字串
             string currentTopic = (CmbAiTopic != null && !string.IsNullOrWhiteSpace(CmbAiTopic.Text))
@@ -585,6 +597,7 @@ namespace KanaVox
                 _savedOllamaModel = _ollamaService.CurrentModel;
                 UpdateStatusBar();
                 TxtStatusBar.Text = string.Format("✅ 本機 Ollama 連線成功，已載入 {0} 個可用模型（目前：{1}）。", installed.Count, _ollamaService.CurrentModel);
+                CheckN1ModelWarning();
             }
             else
             {
@@ -1750,6 +1763,7 @@ namespace KanaVox
         {
             bool isOllamaActive = IsOllamaEngineSelected();
             bool hasCachedNote = !string.IsNullOrWhiteSpace(s.AiNote);
+            bool hideFurigana = ChkHideFurigana != null && ChkHideFurigana.IsChecked == true;
 
             var card = new Border
             {
@@ -1823,7 +1837,8 @@ namespace KanaVox
             {
                 string rawSegText = seg.Text ?? "";
                 string trimmedSeg = rawSegText.Trim();
-                bool isPureKana = string.IsNullOrEmpty(seg.Furigana);
+                bool hasFurigana = !string.IsNullOrEmpty(seg.Furigana);
+                bool isPureKana = !hasFurigana;
 
                 // 判斷是否為獨立助詞變音（は -> wa、へ -> e、を -> o）
                 string particleRomajiHint = null;
@@ -1837,16 +1852,20 @@ namespace KanaVox
                     VerticalAlignment = VerticalAlignment.Bottom
                 };
 
-                // 1. 上方振假名或助詞變音提示列
+                // 1. 上方振假名或助詞變音提示列（支援盲讀模式 Opacity=0 佔位隱藏，避免卡片高度跳動）
                 var furiTb = new TextBlock
                 {
                     FontSize = 10.5,
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
 
-                if (!string.IsNullOrEmpty(seg.Furigana))
+                if (hasFurigana)
                 {
                     PopulateHighlightedInlines(furiTb, seg.Furigana, furiganaNormalBrush, specialPhoneticBrush);
+                    if (hideFurigana)
+                    {
+                        furiTb.Opacity = 0.0;
+                    }
                 }
                 else if (particleRomajiHint != null)
                 {
@@ -1864,7 +1883,7 @@ namespace KanaVox
                 // 2. 下方日文主文列（含選中假名高亮與促音／長音／助詞染色）
                 bool isHit = highlightTarget &&
                              ((!string.IsNullOrEmpty(seg.Text) && (seg.Text.Contains(_selectedKana.Hiragana) || seg.Text.Contains(_selectedKana.Katakana))) ||
-                              (!string.IsNullOrEmpty(seg.Furigana) && (seg.Furigana.Contains(_selectedKana.Hiragana) || seg.Furigana.Contains(_selectedKana.Katakana))));
+                              (hasFurigana && (seg.Furigana.Contains(_selectedKana.Hiragana) || seg.Furigana.Contains(_selectedKana.Katakana))));
 
                 Brush baseMainBrush = (particleRomajiHint != null)
                     ? particleHintBrush
@@ -1893,20 +1912,35 @@ namespace KanaVox
                         Child = segStack
                     };
 
-                    // 組合提示文字（發音規則說明 + 點讀提示）
+                    // 組合提示文字（發音規則說明 + 盲讀提示 + 點讀提示）
                     string ruleHint = "";
                     if (particleRomajiHint == "wa") ruleHint = "助詞「は」在此讀作 wa｜";
                     else if (particleRomajiHint == "e") ruleHint = "助詞「へ」在此讀作 e｜";
                     else if (particleRomajiHint == "o") ruleHint = "助詞「を」讀作 o（受詞標記）｜";
-                    else if (rawSegText.IndexOf('っ') >= 0 || rawSegText.IndexOf('ッ') >= 0 || (!string.IsNullOrEmpty(seg.Furigana) && seg.Furigana.IndexOf('っ') >= 0))
+                    else if (rawSegText.IndexOf('っ') >= 0 || rawSegText.IndexOf('ッ') >= 0 || (hasFurigana && seg.Furigana.IndexOf('っ') >= 0))
                         ruleHint = "含促音「っ/ッ」，發音時停頓一拍｜";
                     else if (rawSegText.IndexOf('ー') >= 0)
                         ruleHint = "含長音「ー」，母音拉長一拍｜";
 
-                    segBorder.ToolTip = ruleHint + "點擊單獨朗讀「" + trimmedSeg + "」";
+                    string blindSuffix = (hideFurigana && hasFurigana) ? "（懸停顯示振假名）" : "";
+                    segBorder.ToolTip = ruleHint + "點擊單獨朗讀「" + trimmedSeg + "」" + blindSuffix;
 
-                    segBorder.MouseEnter += (ms, me) => segBorder.Background = segmentHoverBrush;
-                    segBorder.MouseLeave += (ms, me) => segBorder.Background = Brushes.Transparent;
+                    segBorder.MouseEnter += (ms, me) =>
+                    {
+                        segBorder.Background = segmentHoverBrush;
+                        if (hideFurigana && hasFurigana)
+                        {
+                            furiTb.Opacity = 1.0;
+                        }
+                    };
+                    segBorder.MouseLeave += (ms, me) =>
+                    {
+                        segBorder.Background = Brushes.Transparent;
+                        if (hideFurigana && hasFurigana)
+                        {
+                            furiTb.Opacity = 0.0;
+                        }
+                    };
 
                     // 針對獨立助詞「は / へ」傳入實際讀音假名，避免單字合成誤讀為 ha / he
                     string speakPayload = trimmedSeg;
@@ -2475,7 +2509,7 @@ namespace KanaVox
             }
         }
 
-        // ================= 假名造句 / 精選例句（依標音引擎切換，支援客製化情境與難度） =================
+        // ================= 假名造句 / 精選例句（支援 N2/N1 AI 造句＋本地形態素標音混合管線） =================
         private async void BtnAiSentence_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedKana == null) return;
@@ -2523,24 +2557,95 @@ namespace KanaVox
                 ? CmbAiTopic.Text.Trim()
                 : "日常會話";
 
-            string selectedLevel = "N5";
-            if (CmbAiLevel != null && CmbAiLevel.SelectedItem != null)
-            {
-                var lvlItem = CmbAiLevel.SelectedItem as ComboBoxItem;
-                string lvlText = lvlItem != null ? lvlItem.Content.ToString() : CmbAiLevel.SelectedItem.ToString();
-                if (lvlText.Contains("N4")) selectedLevel = "N4";
-                else if (lvlText.Contains("N3")) selectedLevel = "N3";
-                else selectedLevel = "N5";
-            }
+            string selectedLevel = GetSelectedAiLevel();
+            bool isAdvanced = (selectedLevel == "N2" || selectedLevel == "N1");
 
             BtnAiSentence.IsEnabled = false;
             BtnAiSentence.Content = "⏳ 生成中...";
-            TxtStatusBar.Text = string.Format("正在呼叫本機 Ollama ({0}) 依據【{1} / {2}】生成「{3}」的例句...", _ollamaService.CurrentModel, selectedTopic, selectedLevel, _selectedKana.Hiragana);
+            TxtStatusBar.Text = string.Format("正在呼叫本機 Ollama ({0}) 依據【{1} / {2}】生成「{3}」的例句...",
+                _ollamaService.CurrentModel, selectedTopic, selectedLevel, _selectedKana.Hiragana);
 
             try
             {
-                var newSentences = await _ollamaService.GenerateKanaSentencesAsync(_selectedKana, selectedTopic, selectedLevel);
-                if (newSentences != null && newSentences.Count > 0)
+                var newSentences = new List<SentenceItem>();
+                bool usedHybrid = false;
+                bool needFallbackToFullOllama = !isAdvanced;
+
+                if (isAdvanced)
+                {
+                    // 檢查本地形態素代理是否在線，離線時主動喚醒並短暫輪詢
+                    bool proxyReady = _audioService.IsProxyOnline || await _audioService.CheckProxyHealthAsync();
+                    if (!proxyReady)
+                    {
+                        TxtStatusBar.Text = "⚡ 正在喚醒本地形態素服務 (Port 5050) 以執行 N2/N1 混合標音管線...";
+                        StartProxyProcess();
+                        for (int w = 0; w < 6; w++)
+                        {
+                            await Task.Delay(500);
+                            if (await _audioService.CheckProxyHealthAsync())
+                            {
+                                proxyReady = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (proxyReady)
+                    {
+                        TxtStatusBar.Text = string.Format("正在呼叫本機 Ollama ({0}) 生成【{1} / {2}】雙語句並交由本地形態素標音...",
+                            _ollamaService.CurrentModel, selectedTopic, selectedLevel);
+
+                        var rawPairs = await _ollamaService.GenerateRawKanaSentencesAsync(_selectedKana, selectedTopic, selectedLevel);
+                        if (rawPairs != null && rawPairs.Count > 0)
+                        {
+                            string categoryTag = string.Format("AI：{0} ({1})", selectedTopic, selectedLevel);
+                            foreach (var pair in rawPairs)
+                            {
+                                var analyzed = await StaticDataService.AnalyzeSentenceLocallyAsync(pair.Japanese);
+                                if (analyzed != null)
+                                {
+                                    analyzed.Category = categoryTag;
+                                    if (!string.IsNullOrWhiteSpace(pair.Translation))
+                                    {
+                                        analyzed.Translation = pair.Translation;
+                                    }
+                                    analyzed.IsCustom = true;
+                                    newSentences.Add(analyzed);
+                                }
+                            }
+
+                            if (newSentences.Count > 0)
+                            {
+                                usedHybrid = true;
+                            }
+                            else
+                            {
+                                needFallbackToFullOllama = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        needFallbackToFullOllama = true;
+                    }
+                }
+
+                // 入門～N3，或 N2/N1 本地代理無法連線時，走完整 JSON 模式（N2/N1 逾時自動放寬至 75 秒）
+                if (needFallbackToFullOllama)
+                {
+                    if (isAdvanced)
+                    {
+                        TxtStatusBar.Text = string.Format("本地形態素代理未在線，已自動降級為 Ollama 完整解析模式（75 秒逾時）生成【{0} / {1}】...",
+                            selectedTopic, selectedLevel);
+                    }
+                    var fullList = await _ollamaService.GenerateKanaSentencesAsync(_selectedKana, selectedTopic, selectedLevel);
+                    if (fullList != null)
+                    {
+                        newSentences.AddRange(fullList);
+                    }
+                }
+
+                if (newSentences.Count > 0)
                 {
                     foreach (var s in newSentences) s.IsCustom = true;
                     for (int i = newSentences.Count - 1; i >= 0; i--)
@@ -2554,7 +2659,9 @@ namespace KanaVox
                     CmbCategory.SelectedIndex = 0;
                     RenderFilteredSentences();
                     UpdateStatusBar();
-                    TxtStatusBar.Text = string.Format("✅ 已由 Ollama 生成 {0} 句【{1} ({2})】例句並儲存！", newSentences.Count, selectedTopic, selectedLevel);
+                    string modeTag = usedHybrid ? "（AI 造句＋本地形態素標音）" : "";
+                    TxtStatusBar.Text = string.Format("✅ 已生成 {0} 句【{1} ({2})】例句並儲存{3}！",
+                        newSentences.Count, selectedTopic, selectedLevel, modeTag);
                 }
                 else
                 {
@@ -2735,6 +2842,37 @@ namespace KanaVox
             RenderFilteredSentences();
         }
 
+        private void ChkHideFurigana_Changed(object sender, RoutedEventArgs e)
+        {
+            if (!_isUiInitialized) return;
+            RenderFilteredSentences();
+            bool hidden = ChkHideFurigana != null && ChkHideFurigana.IsChecked == true;
+            TxtStatusBar.Text = hidden
+                ? "🙈 已開啟「振假名盲讀模式」：漢字上方讀音已隱藏，將滑鼠游標移至單詞上方即可顯示提示。"
+                : "👁️ 已關閉振假名盲讀模式，恢復顯示所有漢字振假名。";
+        }
+
+        private void CmbAiLevel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_isUiInitialized) return;
+            CheckN1ModelWarning();
+        }
+
+        private void CheckN1ModelWarning()
+        {
+            if (!_isUiInitialized || _ollamaService == null) return;
+            if (!IsOllamaEngineSelected()) return;
+
+            string level = GetSelectedAiLevel();
+            string model = _ollamaService.CurrentModel ?? "";
+            if (level == "N1" &&
+                (model.IndexOf("7b", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 model.IndexOf("8b", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                TxtStatusBar.Text = "💡 提示：N1 涉及高難度漢字與複合文法，建議搭配 14B 以上模型以獲得最佳準確率。";
+            }
+        }
+
         private void CmbOllamaModel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CmbOllamaModel.SelectedItem != null && _ollamaService != null)
@@ -2744,6 +2882,7 @@ namespace KanaVox
                 if (_isUiInitialized)
                 {
                     UpdateStatusBar();
+                    CheckN1ModelWarning();
                 }
             }
         }

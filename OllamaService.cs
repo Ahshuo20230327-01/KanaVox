@@ -8,6 +8,13 @@ using System.Web.Script.Serialization;
 
 namespace KanaVox
 {
+    // 輕量雙語例句結構（供 N2/N1 混合管線接收純日文與中文翻譯，再交由本地形態素標音）
+    public class RawSentencePair
+    {
+        public string Japanese { get; set; }
+        public string Translation { get; set; }
+    }
+
     public class OllamaService
     {
         private const string BaseUrl = "http://127.0.0.1:11434";
@@ -59,47 +66,120 @@ namespace KanaVox
             });
         }
 
-        // 向下相容多載：預設日常會話與 N5
+        // 向下相容多載：預設日常會話與入門
         public Task<List<SentenceItem>> GenerateKanaSentencesAsync(KanaItem kana)
         {
-            return GenerateKanaSentencesAsync(kana, "日常會話", "N5");
+            return GenerateKanaSentencesAsync(kana, "日常會話", "入門");
         }
 
-        // 核心動態客製化造句：注入情境主題、日檢程度與嚴格語義防呆規約
+        private bool IsAdvancedLevel(string level)
+        {
+            if (string.IsNullOrWhiteSpace(level)) return false;
+            return level.IndexOf("N2", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   level.IndexOf("N1", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        // 共用難度與情境提示詞規約建構器（支援 Pre-N5 入門、N5~N3 與 N2/N1 進階放寬規則）
+        private void AppendCommonGenerationRules(StringBuilder sb, KanaItem kana, string topic, string level, ref int ruleIdx)
+        {
+            bool isEntryLevel = level.IndexOf("入門", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool isAdvanced = IsAdvancedLevel(level);
+
+            if (isEntryLevel)
+            {
+                sb.AppendFormat("{0}. 難度定位與句長限制（Pre-N5 超入門）：專為剛背完五十音的零基礎初學者設計。每句嚴格限制為「2～4 個詞彙」的極短片語、日常寒暄或最基礎的「名詞＋です」結構，絕對禁止長句、複句或複雜動詞時態變化。\n", ruleIdx++);
+                sb.AppendFormat("{0}. 假名優先與用字簡化：優先使用平假名、片假名與最基礎初學單字，避開複雜漢字，讓初學者能無痛認讀目標假名。\n", ruleIdx++);
+            }
+            else if (isAdvanced)
+            {
+                sb.AppendFormat("{0}. 文法與句型難度（JLPT {1} 中高級／高級）：嚴格符合【JLPT {1}】程度之自然句型，可包含複合句、新聞評論、商務職場敬語或特定主題的道地慣用表達，不再受限於簡短對話。\n", ruleIdx++, level);
+                sb.AppendFormat("{0}. 目標假名出現形式放寬：目標假名「{1}」或「{2}」除了直接以假名書寫外，亦可包含在漢字詞彙的標準日語讀音（振假名）之中，不強制必須以純假名形式露面。\n", ruleIdx++, kana.Hiragana, kana.Katakana);
+            }
+            else
+            {
+                sb.AppendFormat("{0}. 文法難度：嚴格限定在【JLPT {1}】程度，句型結構自然準確，避免生硬翻譯腔。\n", ruleIdx++, level);
+            }
+
+            sb.AppendFormat("{0}. 情境與詞彙強綁定：句子語境必須高度契合【{1}】情境。若【{1}】為特定作品、領域或主題，句子的主詞或核心名詞「必須實質出現該領域的專屬術語」（例如機體、駕駛員、基地、模型、道具等），絕對嚴禁輸出「這台車很可愛」、「今天天氣真好」等毫無關聯的通用套話。\n", ruleIdx++, topic);
+            sb.AppendFormat("{0}. 外來語與專有名詞片假名化：日文句子中的所有外來語、英文縮寫或作品專有名詞，一律強制轉換為標準「片假名」書寫（例如必須寫作「ガンダム」），絕對嚴禁在日文句子中直接夾雜英文字母（如 Gundam），也嚴禁直接沿用中文漢字譯名（如鋼彈）。\n", ruleIdx++);
+        }
+
+        // 輕量雙語造句（僅產出純日文與台灣正體中文翻譯，大幅減少 Token 耗時並交由本地形態素標音）
+        public Task<List<RawSentencePair>> GenerateRawKanaSentencesAsync(KanaItem kana, string topic, string level)
+        {
+            return Task.Run(() =>
+            {
+                if (string.IsNullOrWhiteSpace(topic)) topic = "日常會話";
+                if (string.IsNullOrWhiteSpace(level)) level = "入門";
+
+                bool isAdvanced = IsAdvancedLevel(level);
+                string sentenceStyleDesc = isAdvanced ? "符合程度與情境的道地日語例句" : "道地日語對話短句";
+
+                var sb = new StringBuilder();
+                sb.AppendFormat("你是一位專業的日語教學專家。請針對日文假名「{0}」（片假名：{1}，羅馬字：{2}），設計 2 句包含「{0}」或「{1}」（含漢字讀音）的{3}。\n",
+                    kana.Hiragana, kana.Katakana, kana.Romaji, sentenceStyleDesc);
+                sb.AppendLine("【教學條件與語義規約（必須 100% 嚴格遵守）】：");
+
+                int ruleIdx = 1;
+                AppendCommonGenerationRules(sb, kana, topic, level, ref ruleIdx);
+
+                sb.AppendFormat("{0}. 日文原句純淨度：japanese 欄位必須為完整的日文句子（可包含漢字與假名），嚴禁在日文句子中夾雜括號振假名、羅馬拼音或中文翻譯。\n", ruleIdx++);
+                sb.AppendFormat("{0}. 輸出格式限制：嚴格只輸出標準 JSON 格式，絕對不要有任何 Markdown 標記、問候語或額外文字。\n", ruleIdx++);
+                sb.AppendLine("輸出結構如下：");
+                sb.AppendLine("{");
+                sb.AppendLine("  \"sentences\": [");
+                sb.AppendLine("    {");
+                sb.AppendLine("      \"japanese\": \"完整日文原句（嚴禁夾雜括號注音或羅馬拼音）\",");
+                sb.AppendLine("      \"translation\": \"道地台灣正體中文自然翻譯（嚴禁簡體字、中國與香港用語）\"");
+                sb.AppendLine("    }");
+                sb.AppendLine("  ]");
+                sb.Append("}");
+
+                int timeoutMs = isAdvanced ? 60000 : 45000;
+                string rawJson = CallOllamaGenerate(sb.ToString(), true, timeoutMs);
+                return ParseRawSentencesFromJson(rawJson);
+            });
+        }
+
+        // 核心動態客製化造句（完整 JSON 模式：含 segments 振假名與 romaji，作為本地代理離線時的降級方案）
         public Task<List<SentenceItem>> GenerateKanaSentencesAsync(KanaItem kana, string topic, string level)
         {
             return Task.Run(() =>
             {
                 if (string.IsNullOrWhiteSpace(topic)) topic = "日常會話";
-                if (string.IsNullOrWhiteSpace(level)) level = "N5";
+                if (string.IsNullOrWhiteSpace(level)) level = "入門";
 
                 string categoryTag = string.Format("AI：{0} ({1})", topic, level);
+                bool isAdvanced = IsAdvancedLevel(level);
+                string sentenceStyleDesc = isAdvanced ? "符合程度與情境的道地日語例句" : "道地日語對話短句";
 
-                string prompt = string.Format(
-                    "你是一位專業的日語教學專家。請針對日文假名「{0}」（片假名：{1}，羅馬字：{2}），設計 2 句包含「{0}」或「{1}」的道地日語對話短句。\n" +
-                    "【教學條件與語義規約（必須 100% 嚴格遵守）】：\n" +
-                    "1. 文法難度：嚴格限定在【JLPT {3}】程度，句型結構自然準確，避免生硬翻譯腔。\n" +
-                    "2. 情境與詞彙強綁定：句子語境必須高度契合【{4}】情境。若【{4}】為特定作品、領域或主題，句子的主詞或核心名詞「必須實質出現該領域的專屬術語」（例如機體、駕駛員、基地、模型、道具等），絕對嚴禁輸出「這台車很可愛」、「今天天氣真好」等毫無關聯的通用套話。\n" +
-                    "3. 外來語與專有名詞片假名化：日文句子中的所有外來語、英文縮寫或作品專有名詞，一律強制轉換為標準「片假名」書寫（例如必須寫作「ガンダム」），絕對嚴禁在日文句子中直接夾雜英文字母（如 Gundam），也嚴禁直接沿用中文漢字譯名（如鋼彈）。\n" +
-                    "4. 振假名（Furigana）辭典音校準：segments 陣列中，若 text 包含漢字，furigana 必須嚴格填入正確的日語標準辭典平假名讀音（例如「充電」必須標為「じゅうでん」，嚴禁生造錯誤讀音）；純假名或標點符號則必須為空字串 \"\"。\n" +
-                    "5. 羅馬拼音（Romaji）完整對應：romaji 欄位必須為純英文字母標準拼音，且必須從句首到句尾「逐字完整拼寫到底」，絕對嚴禁在句尾中途截斷或省略。\n" +
-                    "6. 輸出格式限制：嚴格只輸出標準 JSON 格式，絕對不要有任何 Markdown 標記、問候語或額外文字。\n" +
-                    "輸出結構如下：\n" +
-                    "{{\n" +
-                    "  \"sentences\": [\n" +
-                    "    {{\n" +
-                    "      \"category\": \"{5}\",\n" +
-                    "      \"romaji\": \"從頭到尾完整拼寫的純英文字母羅馬拼音（嚴禁假名、漢字或中途截斷）\",\n" +
-                    "      \"translation\": \"道地台灣正體中文自然翻譯（嚴禁簡體字、中國與香港用語）\",\n" +
-                    "      \"segments\": [\n" +
-                    "        {{\"text\": \"單字或假名片段\", \"furigana\": \"漢字對應之標準平假名讀音，純假名或標點則填空字串\"}}\n" +
-                    "      ]\n" +
-                    "    }}\n" +
-                    "  ]\n" +
-                    "}}",
-                    kana.Hiragana, kana.Katakana, kana.Romaji, level, topic, categoryTag);
+                var sb = new StringBuilder();
+                sb.AppendFormat("你是一位專業的日語教學專家。請針對日文假名「{0}」（片假名：{1}，羅馬字：{2}），設計 2 句包含「{0}」或「{1}」的{3}。\n",
+                    kana.Hiragana, kana.Katakana, kana.Romaji, sentenceStyleDesc);
+                sb.AppendLine("【教學條件與語義規約（必須 100% 嚴格遵守）】：");
 
-                string rawJson = CallOllamaGenerate(prompt, true);
+                int ruleIdx = 1;
+                AppendCommonGenerationRules(sb, kana, topic, level, ref ruleIdx);
+
+                sb.AppendFormat("{0}. 振假名（Furigana）辭典音校準：segments 陣列中，若 text 包含漢字，furigana 必須嚴格填入正確的日語標準辭典平假名讀音（例如「充電」必須標為「じゅうでん」，嚴禁生造錯誤讀音）；若 text 為純平假名、純片假名或標點符號（不含漢字），furigana 必須嚴格保持空字串 \"\"，絕對嚴禁在純假名上方重複標註相同假名。\n", ruleIdx++);
+                sb.AppendFormat("{0}. 羅馬拼音（Romaji）完整對應：romaji 欄位必須為純英文字母標準拼音，且必須從句首到句尾「逐字完整拼寫到底」，絕對嚴禁在句尾中途截斷或省略。\n", ruleIdx++);
+                sb.AppendFormat("{0}. 輸出格式限制：嚴格只輸出標準 JSON 格式，絕對不要有任何 Markdown 標記、問候語或額外文字。\n", ruleIdx++);
+                sb.AppendLine("輸出結構如下：");
+                sb.AppendLine("{");
+                sb.AppendLine("  \"sentences\": [");
+                sb.AppendLine("    {");
+                sb.AppendFormat("      \"category\": \"{0}\",\n", categoryTag.Replace("\"", "\\\""));
+                sb.AppendLine("      \"romaji\": \"從頭到尾完整拼寫的純英文字母羅馬拼音（嚴禁假名、漢字或中途截斷）\",");
+                sb.AppendLine("      \"translation\": \"道地台灣正體中文自然翻譯（嚴禁簡體字、中國與香港用語）\",");
+                sb.AppendLine("      \"segments\": [");
+                sb.AppendLine("        {\"text\": \"單字或假名片段\", \"furigana\": \"漢字對應之標準平假名讀音，純假名或標點則填空字串\"}");
+                sb.AppendLine("      ]");
+                sb.AppendLine("    }");
+                sb.AppendLine("  ]");
+                sb.Append("}");
+
+                int timeoutMs = isAdvanced ? 75000 : 45000;
+                string rawJson = CallOllamaGenerate(sb.ToString(), true, timeoutMs);
                 return ParseSentencesFromJson(rawJson);
             });
         }
@@ -205,12 +285,12 @@ namespace KanaVox
             });
         }
 
-        private string CallOllamaGenerate(string prompt, bool forceJson)
+        private string CallOllamaGenerate(string prompt, bool forceJson, int timeoutMs = 45000)
         {
             var req = (HttpWebRequest)WebRequest.Create(BaseUrl + "/api/generate");
             req.Method = "POST";
             req.ContentType = "application/json; charset=utf-8";
-            req.Timeout = 45000;
+            req.Timeout = timeoutMs;
 
             var payload = new Dictionary<string, object>
             {
@@ -245,6 +325,42 @@ namespace KanaVox
             }
 
             return string.Empty;
+        }
+
+        private List<RawSentencePair> ParseRawSentencesFromJson(string jsonText)
+        {
+            var result = new List<RawSentencePair>();
+            if (string.IsNullOrWhiteSpace(jsonText)) return result;
+
+            try
+            {
+                var root = _serializer.Deserialize<Dictionary<string, object>>(jsonText);
+                if (root == null || !root.ContainsKey("sentences")) return result;
+
+                var sentencesArray = root["sentences"] as System.Collections.ArrayList;
+                if (sentencesArray == null) return result;
+
+                foreach (var sObj in sentencesArray)
+                {
+                    var sDict = sObj as Dictionary<string, object>;
+                    if (sDict == null) continue;
+
+                    string jp = sDict.ContainsKey("japanese") && sDict["japanese"] != null ? sDict["japanese"].ToString().Trim() : "";
+                    string trans = sDict.ContainsKey("translation") && sDict["translation"] != null ? sDict["translation"].ToString().Trim() : "";
+
+                    if (!string.IsNullOrWhiteSpace(jp))
+                    {
+                        result.Add(new RawSentencePair
+                        {
+                            Japanese = jp,
+                            Translation = ChineseConverter.ToTraditional(trans)
+                        });
+                    }
+                }
+            }
+            catch { }
+
+            return result;
         }
 
         private List<SentenceItem> ParseSentencesFromJson(string jsonText)
@@ -303,7 +419,19 @@ namespace KanaVox
                                 {
                                     string t = segDict["text"].ToString();
                                     string f = segDict.ContainsKey("furigana") && segDict["furigana"] != null ? segDict["furigana"].ToString() : "";
-                                    if (t == f) f = "";
+
+                                    // 若片段不含任何漢字，強制清空 furigana 避免純假名上方重複標音
+                                    bool hasKanji = false;
+                                    foreach (char c in t)
+                                    {
+                                        if ((c >= 0x4E00 && c <= 0x9FFF) || c == 0x3005)
+                                        {
+                                            hasKanji = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (!hasKanji || t == f) f = "";
                                     segments.Add(new RubySegment(t, f));
                                 }
                             }
