@@ -45,6 +45,128 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+
+        <!-- 獨立深色 ComboBox 樣式（支援下拉與直接編輯鍵入，消除白底問題） -->
+        <Style TargetType="ComboBox" x:Key="DarkComboBoxStyle">
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="Background" Value="#313244"/>
+            <Setter Property="BorderBrush" Value="#45475A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="Padding" Value="8,5"/>
+                        <Setter Property="Foreground" Value="#CDD6F4"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" CornerRadius="4" Margin="2,1" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ItemBorder" Property="Background" Value="#45475A"/>
+                                            <Setter Property="Foreground" Value="#89B4FA"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="ItemBorder" Property="Background" Value="#89B4FA"/>
+                                            <Setter Property="Foreground" Value="#11111B"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Focusable="False" 
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="BtnBorder" Background="#313244" BorderBrush="#45475A" BorderThickness="1" CornerRadius="6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="22"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Path Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="#A6ADC8" Data="M 0 0 L 4 4 L 8 0 Z"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="BtnBorder" Property="Background" Value="#45475A"/>
+                                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#89B4FA"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="contentPresenter"
+                                              IsHitTestVisible="False" 
+                                              Content="{TemplateBinding SelectionBoxItem}" 
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" 
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" 
+                                              Margin="8,3,24,3" 
+                                              VerticalAlignment="Center" 
+                                              HorizontalAlignment="Left"/>
+                            <!-- 支援 IsEditable=True 的輸入框 -->
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Background="Transparent"
+                                     Foreground="#CDD6F4"
+                                     CaretBrush="#89B4FA"
+                                     SelectionBrush="#89B4FA"
+                                     BorderThickness="0"
+                                     FontSize="12.5"
+                                     VerticalContentAlignment="Center"
+                                     Margin="8,1,24,1"
+                                     Visibility="Hidden"/>
+                            <Popup x:Name="PART_Popup" 
+                                   AllowsTransparency="True" 
+                                   Focusable="False" 
+                                   IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" 
+                                   Placement="Bottom" 
+                                   PopupAnimation="Slide">
+                                <Border Background="#1E1E2E" 
+                                        BorderBrush="#45475A" 
+                                        BorderThickness="1" 
+                                        CornerRadius="6" 
+                                        MaxHeight="220" 
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" 
+                                        Margin="0,3,0,0" 
+                                        Padding="3">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="12" Color="#000000" Opacity="0.55" ShadowDepth="3"/>
+                                    </Border.Effect>
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEditable" Value="True">
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="contentPresenter" Property="Visibility" Value="Collapsed"/>
+                                <Setter Property="IsTabStop" Value="False"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="14">
@@ -314,7 +436,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- 表頭：情境分類、假名聯動與「🤖 啟用 AI 助教」開關 -->
+                    <!-- 表頭：情境分類、假名聯動與標音解析引擎獨立選單 -->
                     <Grid Grid.Row="0" Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -326,39 +448,94 @@
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Foreground="#A6ADC8" Margin="0,0,4,0" Text="分類：" VerticalAlignment="Center"/>
-                            <ComboBox SelectedIndex="0" SelectionChanged="CmbCategory_SelectionChanged" Width="130" x:Name="CmbCategory"/>
+                            <ComboBox SelectedIndex="0" SelectionChanged="CmbCategory_SelectionChanged" Width="120" x:Name="CmbCategory"/>
                         </StackPanel>
 
                         <CheckBox Checked="ChkLinkKanaFilter_Changed" Content="假名聯動" Foreground="#F9E2AF" Grid.Column="2" Margin="0,0,10,0" ToolTip="點選五十音時自動過濾出包含該假名的例句" Unchecked="ChkLinkKanaFilter_Changed" VerticalAlignment="Center" x:Name="ChkLinkKanaFilter"/>
 
-                        <CheckBox Checked="ChkEnableOllama_Changed" Content="🤖 啟用 AI 助教" FontWeight="SemiBold" Foreground="#89DCEB" Grid.Column="3" ToolTip="啟用本機 Ollama AI 助教（造句、口訣、振假名解析），需本機已啟動 Ollama 服務" Unchecked="ChkEnableOllama_Changed" VerticalAlignment="Center" x:Name="ChkEnableOllama"/>
+                        <!-- 標音解析引擎獨立選單（套用深色樣式） -->
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="標音：" VerticalAlignment="Center" Foreground="#89DCEB" FontSize="12.5" Margin="0,0,4,0"/>
+                            <ComboBox x:Name="CmbAnalysisEngine" Width="175" Height="28" 
+                                      SelectionChanged="CmbAnalysisEngine_SelectionChanged"
+                                      Style="{StaticResource DarkComboBoxStyle}">
+                                <ComboBoxItem Content="⚡ 本地形態素 (pykakasi)" IsSelected="True"/>
+                                <ComboBoxItem Content="🤖 本機 AI 助教 (Ollama)"/>
+                            </ComboBox>
+                            <CheckBox x:Name="ChkEnableOllama" Visibility="Collapsed" Checked="ChkEnableOllama_Changed" Unchecked="ChkEnableOllama_Changed"/>
+                        </StackPanel>
                     </Grid>
 
-                    <!-- AI 助教工具列（預設隱藏，勾選「啟用 AI 助教」後展開） -->
-                    <Border Background="#24273A" CornerRadius="6" Grid.Row="1" Margin="0,0,0,8" Padding="10,8" Visibility="Collapsed" x:Name="BorderAiToolbar">
+                    <!-- 學習輔助工具列（雙層展開型：第1層模型與按鈕，第2層難度與情境客製） -->
+                    <Border Background="#24273A" CornerRadius="6" Grid.Row="1" Margin="0,0,0,8" Padding="10,8" x:Name="BorderAiToolbar">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Background="#A6E3A1" CornerRadius="4" Margin="0,0,8,0" Padding="6,2">
-                                    <TextBlock FontSize="12" FontWeight="Bold" Foreground="#11111B" Text="當前假名：あ (a)" x:Name="TxtSelectedKanaBadge"/>
-                                </Border>
-                                <TextBlock FontSize="12" Foreground="#A6ADC8" Margin="0,0,4,0" Text="模型：" VerticalAlignment="Center"/>
-                                <ComboBox FontSize="12" SelectionChanged="CmbOllamaModel_SelectionChanged" VerticalAlignment="Center" Width="155" x:Name="CmbOllamaModel"/>
-                            </StackPanel>
+                            <!-- 第 1 層：假名標籤、模型選單、生成按鈕 -->
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Background="#CBA6F7" Click="BtnAiMnemonic_Click" Content="💡 AI 記憶口訣" FontSize="12" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" x:Name="BtnAiMnemonic"/>
-                                <Button Background="#89DCEB" Click="BtnAiSentence_Click" Content="✨ AI 假名造句" FontSize="12" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" x:Name="BtnAiSentence"/>
-                            </StackPanel>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="#A6E3A1" CornerRadius="4" Margin="0,0,8,0" Padding="6,2">
+                                        <TextBlock FontSize="12" FontWeight="Bold" Foreground="#11111B" Text="當前假名：あ (a)" x:Name="TxtSelectedKanaBadge"/>
+                                    </Border>
+                                    <TextBlock FontSize="12" Foreground="#A6ADC8" Margin="0,0,4,0" Text="模型：" VerticalAlignment="Center"/>
+                                    <ComboBox FontSize="12" SelectionChanged="CmbOllamaModel_SelectionChanged" VerticalAlignment="Center" Width="155" x:Name="CmbOllamaModel" Style="{StaticResource DarkComboBoxStyle}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Background="#CBA6F7" Click="BtnAiMnemonic_Click" Content="💡 假名字源口訣" FontSize="12" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" x:Name="BtnAiMnemonic"/>
+                                    <Button Background="#89DCEB" Click="BtnAiSentence_Click" Content="📖 假名精選例句" FontSize="12" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" x:Name="BtnAiSentence"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- 第 2 層：AI 客製化維度（難度等級 + 可編輯情境主題），切換 pykakasi 時可由後台隱藏 -->
+                            <Border x:Name="PanelAiCustomOptions" Grid.Row="1" Margin="0,8,0,0" Padding="0,6,0,0" BorderBrush="#313244" BorderThickness="0,1,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- 左側：難度等級 -->
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
+                                        <TextBlock Text="🎯 難度：" Foreground="#A6ADC8" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <ComboBox x:Name="CmbAiLevel" Width="100" Height="26" SelectedIndex="0" Style="{StaticResource DarkComboBoxStyle}">
+                                            <ComboBoxItem Content="N5 (初學)"/>
+                                            <ComboBoxItem Content="N4 (進階)"/>
+                                            <ComboBoxItem Content="N3 (中級)"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- 右側：情境 / 風格可編輯下拉選單 -->
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="🎭 情境／風格：" Foreground="#A6ADC8" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <ComboBox Grid.Column="1" x:Name="CmbAiTopic" Height="26" IsEditable="True" Style="{StaticResource DarkComboBoxStyle}" ToolTip="可下拉快速選取預設情境，或直接在此輸入任意自訂情境（例如：居酒屋點餐、超商結帳、動漫熱血風格）">
+                                            <ComboBoxItem Content="日常會話" IsSelected="True"/>
+                                            <ComboBoxItem Content="居酒屋點餐"/>
+                                            <ComboBoxItem Content="秋葉原購物"/>
+                                            <ComboBoxItem Content="動漫熱血風格"/>
+                                            <ComboBoxItem Content="飯店旅遊住宿"/>
+                                            <ComboBoxItem Content="商務職場敬語"/>
+                                        </ComboBox>
+                                    </Grid>
+                                </Grid>
+                            </Border>
                         </Grid>
                     </Border>
 
-                    <!-- AI 口訣浮動面板 -->
+                    <!-- AI / 字源口訣浮動面板 -->
                     <Border Background="#313244" BorderBrush="#CBA6F7" BorderThickness="1" CornerRadius="6" Grid.Row="2" Margin="0,0,0,8" Padding="10,8" Visibility="Collapsed" x:Name="BorderMnemonic">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -388,7 +565,7 @@
 
                             <StackPanel Grid.Row="2" HorizontalAlignment="Right" Margin="0,8,0,0" Orientation="Horizontal">
                                 <Button Click="BtnStopTts_Click" Content="■ 停止播放 / 停止循環" Style="{StaticResource ActionBtnStyle}"/>
-                                <Button Background="#F9E2AF" Click="BtnAiAnalyzeCustom_Click" Content="🪄 解析為振假名卡片" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" Visibility="Collapsed" x:Name="BtnAiAnalyzeCustom"/>
+                                <Button Background="#F9E2AF" Click="BtnAiAnalyzeCustom_Click" Content="🪄 本地解析振假名" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}" x:Name="BtnAiAnalyzeCustom"/>
                                 <Button Background="#89B4FA" Click="BtnSpeakCustom_Click" Content="▶ 直接朗讀內容" FontWeight="Bold" Foreground="#11111B" Style="{StaticResource ActionBtnStyle}"/>
                             </StackPanel>
                         </Grid>
@@ -397,7 +574,7 @@
             </Border>
         </Grid>
 
-<!-- ================= 底部狀態列 ================= -->
+        <!-- ================= 底部狀態列 ================= -->
         <Border Background="#11111B" CornerRadius="6" Grid.Row="2" Margin="0,10,0,0" Padding="12,8">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -407,7 +584,17 @@
                 <TextBlock FontSize="12" Foreground="#A6ADC8" Grid.Column="0" VerticalAlignment="Center" x:Name="TxtStatusBar"/>
                 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <CheckBox Checked="ChkAutoStartProxy_Changed" Content="⚡ 自動常駐語音代理" FontSize="12" FontWeight="SemiBold" Foreground="#89DCEB" Margin="0,0,12,0" ToolTip="啟動 KanaVox 時自動在背景執行 edge_tts_proxy.py，關閉視窗時自動終結處理程序" Unchecked="ChkAutoStartProxy_Changed" VerticalAlignment="Center" x:Name="ChkAutoStartProxy"/>
+                    <!-- 發音來源獨立選單（套用深色樣式） -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                        <TextBlock Text="發音來源：" VerticalAlignment="Center" Foreground="#A6ADC8" FontSize="12" Margin="0,0,4,0"/>
+                        <ComboBox x:Name="CmbTtsEngine" Width="165" Height="26" 
+                                  SelectionChanged="CmbTtsEngine_SelectionChanged"
+                                  Style="{StaticResource DarkComboBoxStyle}">
+                            <ComboBoxItem Content="🌐 Edge-TTS (Nanami)" IsSelected="True"/>
+                            <ComboBoxItem Content="💻 系統語音 (SAPI)"/>
+                        </ComboBox>
+                    </StackPanel>
+
                     <Button Background="#313244" Click="BtnAudioGuide_Click" Content="🔊 離線音檔說明" FontSize="12" Foreground="#89DCEB" Margin="0,0,8,0" Padding="8,3" Style="{StaticResource ActionBtnStyle}"/>
                     <Button Click="BtnReloadWav_Click" Content="重新掃描 Audio 資料夾" FontSize="12" Padding="8,3" Style="{StaticResource ActionBtnStyle}"/>
                 </StackPanel>
@@ -428,7 +615,6 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- 標題列與關閉 X 按鈕 -->
                     <Grid Grid.Row="0" Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -441,22 +627,19 @@
                         <Button Background="Transparent" BorderThickness="0" Click="BtnCloseAudioGuide_Click" Content="✕" Cursor="Hand" FontSize="16" Foreground="#A6ADC8" Grid.Column="1" Padding="6,2"/>
                     </Grid>
 
-                    <!-- 說明本文（全文字允許自由滑鼠拖曳反白選取複製，已加入 Windows 日文語音前提說明） -->
                     <TextBox Background="Transparent" BorderThickness="0" FontSize="13.5" Foreground="#CDD6F4" Grid.Row="1" IsReadOnly="True" IsTabStop="False" Margin="0,0,0,12" SelectionBrush="#89B4FA" Text="1. 為什麼 GitHub 發布版本未內建音檔？&#x0a;為了遵守微軟與第三方語音服務之授權條款，公開發布版本不直接打包分發音訊資產。&#x0a;&#x0a;2. 目前運作模式：&#x0a;軟體預設直接調用本機 Windows 系統內建的日文語音引擎（SAPI）即時朗讀。&#x0a;⚠️ 使用前提：需確認 Windows 已安裝「日文語音套件」（非日文語系系統預設未預載；若無聲音，請點擊下方「⚙️ 安裝 Windows 日文語音」前往系統設定，免費新增「日本語」語音）。&#x0a;&#x0a;3. 如何取得 0 延遲高品質離線音檔？&#x0a;專案根目錄已隨附「generate_audio.py」腳本。若您有安裝 Python 與 edge-tts，只需在終端機執行下方指令，即可免費在個人本機生成專屬的 101 個假名單音 WAV 檔：" TextWrapping="Wrap"/>
 
-                    <!-- 終端機風格代碼盒（含獨立複製按鈕） -->
                     <Border Background="#11111B" BorderBrush="#313244" BorderThickness="1" CornerRadius="6" Grid.Row="2" Margin="0,0,0,14" Padding="12,10">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Background="Transparent" BorderThickness="0" FontFamily="Consolas, Cascadia Code, Courier New" FontSize="13.5" FontWeight="SemiBold" Foreground="#A6E3A1" Grid.Column="0" IsReadOnly="True" SelectionBrush="#89B4FA" Text="pip install edge-tts&#x0a;python generate_audio.py" VerticalAlignment="Center"/>
+                            <TextBox Background="Transparent" BorderThickness="0" FontFamily="Consolas, Cascadia Code, Courier New" FontSize="13.5" FontWeight="SemiBold" Foreground="#A6E3A1" Grid.Column="0" IsReadOnly="True" SelectionBrush="#89B4FA" Text="pip install edge-tts aiohttp pykakasi&#x0a;python generate_audio.py" VerticalAlignment="Center"/>
                             <Button Background="#313244" Click="BtnCopyCommand_Click" Content="📋 複製指令" FontSize="12" FontWeight="Bold" Foreground="#CDD6F4" Grid.Column="1" Padding="10,6" Style="{StaticResource ActionBtnStyle}" VerticalAlignment="Center" x:Name="BtnCopyCommand"/>
                         </Grid>
                     </Border>
 
-                    <!-- 底部提示與動作按鈕（含「⚙️ 安裝 Windows 日文語音」按鈕） -->
                     <Grid Grid.Row="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

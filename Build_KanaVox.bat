@@ -30,80 +30,82 @@ if not defined MSBUILD_PATH (
 
 echo [資訊] 採用建置引擎: "%MSBUILD_PATH%"
 
-:: 2. 確認或產生 KanaVox.csproj
+:: 2. 確認或產生 KanaVox.csproj（補齊 StaticDataService.cs）
 if not exist "%PROJ_DIR%\KanaVox.csproj" (
     (
         echo ^<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"^>
-        echo   ^<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" /^>
-        echo   ^<PropertyGroup^>
-        echo     ^<Configuration Condition=" '$(Configuration)' == '' "^>Release^</Configuration^>
-        echo     ^<Platform Condition=" '$(Platform)' == '' "^>AnyCPU^</Platform^>
-        echo     ^<ProjectGuid^>{8C2F3140-AE53-4809-B81E-B23B06927C01}^</ProjectGuid^>
-        echo     ^<OutputType^>WinExe^</OutputType^>
-        echo     ^<RootNamespace^>KanaVox^</RootNamespace^>
-        echo     ^<AssemblyName^>KanaVox^</AssemblyName^>
-        echo     ^<TargetFrameworkVersion^>v4.8^</TargetFrameworkVersion^>
-        echo     ^<FileAlignment^>512^</FileAlignment^>
-        echo     ^<ProjectTypeGuids^>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}^</ProjectTypeGuids^>
-        echo     ^<WarningLevel^>4^</WarningLevel^>
-        echo     ^<AutoGenerateBindingRedirects^>true^</AutoGenerateBindingRedirects^>
-        echo   ^</PropertyGroup^>
-        echo   ^<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' "^>
-        echo     ^<PlatformTarget^>AnyCPU^</PlatformTarget^>
-        echo     ^<DebugType^>none^</DebugType^>
-        echo     ^<Optimize^>true^</Optimize^>
-        echo     ^<OutputPath^>bin\Release\^</OutputPath^>
-        echo     ^<DefineConstants^>TRACE^</DefineConstants^>
-        echo     ^<ErrorReport^>prompt^</ErrorReport^>
-        echo     ^<WarningLevel^>4^</WarningLevel^>
-        echo     ^<Prefer32Bit^>false^</Prefer32Bit^>
-        echo   ^</PropertyGroup^>
-        echo   ^<ItemGroup^>
-        echo     ^<Reference Include="System" /^>
-        echo     ^<Reference Include="System.Core" /^>
-        echo     ^<Reference Include="System.Net.Http" /^>
-        echo     ^<Reference Include="System.Speech" /^>
-        echo     ^<Reference Include="System.Web.Extensions" /^>
-        echo     ^<Reference Include="System.Xaml" /^>
-        echo     ^<Reference Include="WindowsBase" /^>
-        echo     ^<Reference Include="PresentationCore" /^>
-        echo     ^<Reference Include="PresentationFramework" /^>
-        echo   ^</ItemGroup^>
-        echo   ^<ItemGroup^>
-        echo     ^<ApplicationDefinition Include="App.xaml"^>
-        echo       ^<Generator^>MSBuild:Compile^</Generator^>
-        echo       ^<SubType^>Designer^</SubType^>
-        echo     ^</ApplicationDefinition^>
-        echo     ^<Page Include="MainWindow.xaml"^>
-        echo       ^<Generator^>MSBuild:Compile^</Generator^>
-        echo       ^<SubType^>Designer^</SubType^>
-        echo     ^</Page^>
-        echo     ^<Compile Include="App.xaml.cs"^>
-        echo       ^<DependentUpon^>App.xaml^</DependentUpon^>
-        echo       ^<SubType^>Code^</SubType^>
-        echo     ^</Compile^>
-        echo     ^<Compile Include="MainWindow.xaml.cs"^>
-        echo       ^<DependentUpon^>MainWindow.xaml^</DependentUpon^>
-        echo       ^<SubType^>Code^</SubType^>
-        echo     ^</Compile^>
-        echo     ^<Compile Include="Models.cs" /^>
-        echo     ^<Compile Include="AudioService.cs" /^>
-        echo     ^<Compile Include="OllamaService.cs" /^>
-        echo   ^</ItemGroup^>
-        echo   ^<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" /^>
+        echo    ^<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" /^>
+        echo    ^<PropertyGroup^>
+        echo      ^<Configuration Condition=" '$(Configuration)' == '' "^>Release^</Configuration^>
+        echo      ^<Platform Condition=" '$(Platform)' == '' "^>AnyCPU^</Platform^>
+        echo      ^<ProjectGuid^>{8C2F3140-AE53-4809-B81E-B23B06927C01}^</ProjectGuid^>
+        echo      ^<OutputType^>WinExe^</OutputType^>
+        echo      ^<RootNamespace^>KanaVox^</RootNamespace^>
+        echo      ^<AssemblyName^>KanaVox^</AssemblyName^>
+        echo      ^<TargetFrameworkVersion^>v4.8^</TargetFrameworkVersion^>
+        echo      ^<FileAlignment^>512^</FileAlignment^>
+        echo      ^<ProjectTypeGuids^>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}^</ProjectTypeGuids^>
+        echo      ^<WarningLevel^>4^</WarningLevel^>
+        echo      ^<AutoGenerateBindingRedirects^>true^</AutoGenerateBindingRedirects^>
+        echo    ^</PropertyGroup^>
+        echo    ^<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' "^>
+        echo      ^<PlatformTarget^>AnyCPU^</PlatformTarget^>
+        echo      ^<DebugType^>none^</DebugType^>
+        echo      ^<Optimize^>true^</Optimize^>
+        echo      ^<OutputPath^>bin\Release\^</OutputPath^>
+        echo      ^<DefineConstants^>TRACE^</DefineConstants^>
+        echo      ^<ErrorReport^>prompt^</ErrorReport^>
+        echo      ^<WarningLevel^>4^</WarningLevel^>
+        echo      ^<Prefer32Bit^>false^</Prefer32Bit^>
+        echo    ^</PropertyGroup^>
+        echo    ^<ItemGroup^>
+        echo      ^<Reference Include="System" /^>
+        echo      ^<Reference Include="System.Core" /^>
+        echo      ^<Reference Include="System.Net.Http" /^>
+        echo      ^<Reference Include="System.Speech" /^>
+        echo      ^<Reference Include="System.Web.Extensions" /^>
+        echo      ^<Reference Include="System.Xaml" /^>
+        echo      ^<Reference Include="WindowsBase" /^>
+        echo      ^<Reference Include="PresentationCore" /^>
+        echo      ^<Reference Include="PresentationFramework" /^>
+        echo    ^</ItemGroup^>
+        echo    ^<ItemGroup^>
+        echo      ^<ApplicationDefinition Include="App.xaml"^>
+        echo        ^<Generator^>MSBuild:Compile^</Generator^>
+        echo        ^<SubType^>Designer^</SubType^>
+        echo      ^</ApplicationDefinition^>
+        echo      ^<Page Include="MainWindow.xaml"^>
+        echo        ^<Generator^>MSBuild:Compile^</Generator^>
+        echo        ^<SubType^>Designer^</SubType^>
+        echo      ^</Page^>
+        echo      ^<Compile Include="App.xaml.cs"^>
+        echo        ^<DependentUpon^>App.xaml^</DependentUpon^>
+        echo        ^<SubType^>Code^</SubType^>
+        echo      ^</Compile^>
+        echo      ^<Compile Include="MainWindow.xaml.cs"^>
+        echo        ^<DependentUpon^>MainWindow.xaml^</DependentUpon^>
+        echo        ^<SubType^>Code^</SubType^>
+        echo      ^</Compile^>
+        echo      ^<Compile Include="Models.cs" /^>
+        echo      ^<Compile Include="AudioService.cs" /^>
+        echo      ^<Compile Include="OllamaService.cs" /^>
+        echo      ^<Compile Include="StaticDataService.cs" /^>
+        echo    ^</ItemGroup^>
+        echo    ^<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" /^>
         echo ^</Project^>
     ) > "%PROJ_DIR%\KanaVox.csproj"
     echo [OK] 已建立 KanaVox.csproj
 )
 
-:: 自動將背景常駐代理與相關資料庫腳本同步到 bin\Release\ 供本地直接執行
-copy /y "%PROJ_DIR%\edge_tts_proxy.py" "%PROJ_DIR%\bin\Release\" >nul
-copy /y "%PROJ_DIR%\generate_clean_kana.py" "%PROJ_DIR%\bin\Release\" >nul
-copy /y "%PROJ_DIR%\Start_TtsProxy.bat" "%PROJ_DIR%\bin\Release\" >nul
-copy /y "%PROJ_DIR%\mnemonics.json" "%PROJ_DIR%\bin\Release\" >nul
-copy /y "%PROJ_DIR%\preset_sentences.json" "%PROJ_DIR%\bin\Release\" >nul
+:: 3. 自動同步核心腳本與資料庫至 bin\Release\ 供本地即時除錯
+if not exist "%PROJ_DIR%\bin\Release" mkdir "%PROJ_DIR%\bin\Release"
+if exist "%PROJ_DIR%\edge_tts_proxy.py" copy /y "%PROJ_DIR%\edge_tts_proxy.py" "%PROJ_DIR%\bin\Release\" >nul
+if exist "%PROJ_DIR%\Start_TtsProxy.bat" copy /y "%PROJ_DIR%\Start_TtsProxy.bat" "%PROJ_DIR%\bin\Release\" >nul
+if exist "%PROJ_DIR%\mnemonics.json" copy /y "%PROJ_DIR%\mnemonics.json" "%PROJ_DIR%\bin\Release\" >nul
+if exist "%PROJ_DIR%\preset_sentences.json" copy /y "%PROJ_DIR%\preset_sentences.json" "%PROJ_DIR%\bin\Release\" >nul
+if exist "%PROJ_DIR%\requirements.txt" copy /y "%PROJ_DIR%\requirements.txt" "%PROJ_DIR%\bin\Release\" >nul
 
-:: 3. 執行 Release 編譯
+:: 4. 執行 Release 編譯
 echo.
 echo ========================================================
 echo  開始編譯 KanaVox (Release 模式)...
@@ -117,7 +119,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: 4. 準備乾淨發布資料夾（過濾個人設定與版權音檔）
+:: 5. 準備乾淨發布資料夾（完整包入新架構離線資源，排除個人隱私設定）
 echo.
 echo ========================================================
 echo  開始封裝 GitHub 發布專用 ZIP 壓縮檔...
@@ -132,13 +134,27 @@ if exist "%OUTPUT_ZIP%" del /f /q "%OUTPUT_ZIP%"
 mkdir "%STAGING_DIR%"
 mkdir "%STAGING_DIR%\Audio"
 
-:: 複製必要執行檔與相依設定（排除 .pdb 與個人檔案）
+:: (1) 複製主程式與配置
 copy /y "%PROJ_DIR%\bin\Release\KanaVox.exe" "%STAGING_DIR%\" >nul
 if exist "%PROJ_DIR%\bin\Release\KanaVox.exe.config" (
     copy /y "%PROJ_DIR%\bin\Release\KanaVox.exe.config" "%STAGING_DIR%\" >nul
 )
 
-:: 複製發布隨附工具與說明文件
+:: (2) 複製本地伴生服務與烘烤資料庫（重要補齊）
+if exist "%PROJ_DIR%\edge_tts_proxy.py" (
+    copy /y "%PROJ_DIR%\edge_tts_proxy.py" "%STAGING_DIR%\" >nul
+)
+if exist "%PROJ_DIR%\mnemonics.json" (
+    copy /y "%PROJ_DIR%\mnemonics.json" "%STAGING_DIR%\" >nul
+)
+if exist "%PROJ_DIR%\preset_sentences.json" (
+    copy /y "%PROJ_DIR%\preset_sentences.json" "%STAGING_DIR%\" >nul
+)
+if exist "%PROJ_DIR%\requirements.txt" (
+    copy /y "%PROJ_DIR%\requirements.txt" "%STAGING_DIR%\" >nul
+)
+
+:: (3) 複製發布隨附工具與說明文件
 if exist "%PROJ_DIR%\generate_audio.py" (
     copy /y "%PROJ_DIR%\generate_audio.py" "%STAGING_DIR%\" >nul
 )
@@ -152,11 +168,11 @@ if exist "%PROJ_DIR%\LICENSE" (
 :: 在 Audio 目錄放入 .gitkeep 確保空資料夾結構被保留
 type nul > "%STAGING_DIR%\Audio\.gitkeep"
 
-:: 5. 呼叫 PowerShell 進行壓縮
+:: 6. 呼叫 PowerShell 進行壓縮打包（使用標準路徑）
 powershell -NoProfile -Command "Compress-Archive -Path '%STAGING_DIR%\*' -DestinationPath '%OUTPUT_ZIP%' -Force"
 
 :: 清除暫存目錄
-rd /s /q "%STAGING_DIR%"
+if exist "%STAGING_DIR%" rd /s /q "%STAGING_DIR%"
 
 if exist "%OUTPUT_ZIP%" (
     for %%F in ("%OUTPUT_ZIP%") do set "ZIP_SIZE=%%~zF"
@@ -166,14 +182,18 @@ if exist "%OUTPUT_ZIP%" (
     echo        檔案大小: !ZIP_KB! KB
     echo.
     echo [發布檢核確認]
-    echo  - [x] KanaVox.exe (已最佳化編譯)
-    echo  - [x] generate_audio.py (離線音訊生成腳本)
-    echo  - [x] Audio\ (乾淨空資料夾，無版權音檔殘留)
-    echo  - [x] 排除 window_settings.json (無個人座標殘留)
-    echo  - [x] 排除 custom_sentences.json (無個人自訂例句殘留)
-    echo  - [x] 排除 *.pdb (無除錯符號檔案)
+    echo  - [x] KanaVox.exe （已最佳化編譯）
+    echo  - [x] edge_tts_proxy.py （語音合成與形態素代理）
+    echo  - [x] mnemonics.json （本機五十音口訣庫）
+    echo  - [x] preset_sentences.json （本機預製精選例句庫）
+    echo  - [x] requirements.txt （Python 相依環境清單）
+    echo  - [x] generate_audio.py （離線音訊生成腳本）
+    echo  - [x] Audio\ （乾淨空資料夾，無版權音檔殘留）
+    echo  - [x] 排除 window_settings.json （無個人座標殘留）
+    echo  - [x] 排除 custom_sentences.json （無個人自訂例句殘留）
+    echo  - [x] 排除 *.pdb （無除錯符號檔案）
 ) else (
-    echo [警告] 壓縮流程未產生 ZIP 檔，請確認 PowerShell 支援度。
+    echo [警告] 壓縮流程未產生 ZIP 檔，請確認系統 PowerShell 支援度。
 )
 
 echo ========================================================

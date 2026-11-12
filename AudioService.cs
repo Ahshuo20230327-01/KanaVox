@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Media;
 using System.Net;
 using System.Speech.Synthesis;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace KanaVox
@@ -13,56 +11,47 @@ namespace KanaVox
     public class AudioService : IDisposable
     {
         private readonly SpeechSynthesizer _synth;
-        private readonly Dictionary<string, byte[]> _wavCache = new Dictionary<string, byte[]>();
+        private readonly Dictionary<string, byte[]> _wavCache = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+        private SoundPlayer _currentPlayer;
+        private int _currentRate = 0;
+        private int _currentVolume = 100;
 
-        private SoundPlayer _activeSentencePlayer;
-        private SoundPlayer _kanaPlayer;
-        private CancellationTokenSource _cts;
-
-        private bool _isLooping = false;
-        private const string ProxyBaseUrl = "http://127.0.0.1:5050";
-        private bool _isProxyAvailable = false;
-        private DateTime _lastProxyCheck = DateTime.MinValue;
-
+        public TtsEngineMode CurrentEngine { get; set; }
+        public bool IsProxyOnline { get; private set; }
         public bool HasJapaneseTts { get; private set; }
         public string ActiveVoiceName { get; private set; }
-
         public int LoadedWavCount
         {
             get { return _wavCache.Count; }
         }
-
-        public bool IsProxyOnline
-        {
-            get { return _isProxyAvailable; }
-        }
-
-        public bool IsLoopingActive
-        {
-            get { return _isLooping; }
-        }
+        public bool IsLoopingActive { get; private set; }
 
         public AudioService()
         {
+            CurrentEngine = TtsEngineMode.EdgeTts;
             _synth = new SpeechSynthesizer();
-            InitializeSapiVoice();
+
+            InitSapiVoice();
             ReloadWavCache();
-            Task.Run(new Func<Task<bool>>(CheckProxyHealthAsync));
+            CheckProxyHealthAsync();
         }
 
-        private void InitializeSapiVoice()
+        private void InitSapiVoice()
         {
             try
             {
                 var voices = _synth.GetInstalledVoices();
-                var jpVoice = voices.FirstOrDefault(v =>
-                    v.Enabled &&
-                    (v.VoiceInfo.Culture.Name.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ||
-                     v.VoiceInfo.Description.IndexOf("Japanese", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     v.VoiceInfo.Name.IndexOf("Haruka", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     v.VoiceInfo.Name.IndexOf("Ayumi", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     v.VoiceInfo.Name.IndexOf("Ichiro", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     v.VoiceInfo.Name.IndexOf("Sayaka", StringComparison.OrdinalIgnoreCase) >= 0));
+                InstalledVoice jpVoice = null;
+
+                foreach (var v in voices)
+                {
+                    if (v.Enabled && v.VoiceInfo.Culture != null &&
+                        v.VoiceInfo.Culture.Name.StartsWith("ja", StringComparison.OrdinalIgnoreCase))
+                    {
+                        jpVoice = v;
+                        break;
+                    }
+                }
 
                 if (jpVoice != null)
                 {
@@ -73,7 +62,7 @@ namespace KanaVox
                 else
                 {
                     HasJapaneseTts = false;
-                    ActiveVoiceName = "未偵測到系統日文 SAPI 語音";
+                    ActiveVoiceName = "未安裝日語語音";
                 }
             }
             catch
@@ -83,67 +72,73 @@ namespace KanaVox
             }
         }
 
-        public async Task<bool> CheckProxyHealthAsync()
-        {
-            return await Task.Run(new Func<bool>(() =>
-            {
-                try
-                {
-                    var req = (HttpWebRequest)WebRequest.Create(ProxyBaseUrl + "/health");
-                    req.Timeout = 1200;
-                    req.Method = "GET";
-                    using (var resp = (HttpWebResponse)req.GetResponse())
-                    {
-                        _isProxyAvailable = (resp.StatusCode == HttpStatusCode.OK);
-                    }
-                }
-                catch
-                {
-                    _isProxyAvailable = false;
-                }
-                _lastProxyCheck = DateTime.Now;
-                return _isProxyAvailable;
-            }));
-        }
-
         public void ReloadWavCache()
         {
             _wavCache.Clear();
             string audioDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Audio");
-            if (!Directory.Exists(audioDir)) return;
-
-            foreach (string file in Directory.GetFiles(audioDir, "*.wav"))
+            if (Directory.Exists(audioDir))
             {
-                string key = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
                 try
                 {
-                    byte[] data = File.ReadAllBytes(file);
-                    _wavCache[key] = data;
+                    var files = Directory.GetFiles(audioDir, "*.wav");
+                    foreach (var f in files)
+                    {
+                        string key = Path.GetFileNameWithoutExtension(f).ToLowerInvariant();
+                        _wavCache[key] = File.ReadAllBytes(f);
+                    }
                 }
                 catch { }
             }
         }
 
-        public void PlayKana(KanaItem item)
+        public async Task<bool> CheckProxyHealthAsync()
         {
-            if (item == null || item.IsEmptySlot) return;
+            try
+            {
+                var req = (HttpWebRequest)WebRequest.Create("http://127.0.0.1:5050/health");
+                req.Timeout = 1500;
+                req.Method = "GET";
 
-            string key = item.Romaji.ToLowerInvariant();
-            byte[] wavData;
-            if (_wavCache.TryGetValue(key, out wavData))
+                using (var resp = (HttpWebResponse)await req.GetResponseAsync())
+                {
+                    IsProxyOnline = (resp.StatusCode == HttpStatusCode.OK);
+                    return IsProxyOnline;
+                }
+            }
+            catch
+            {
+                IsProxyOnline = false;
+                return false;
+            }
+        }
+
+        public bool TryPlayWav(string romaji)
+        {
+            if (string.IsNullOrEmpty(romaji)) return false;
+            string key = romaji.ToLowerInvariant();
+
+            if (_wavCache.ContainsKey(key))
             {
                 try
                 {
                     StopAll();
-                    var ms = new MemoryStream(wavData);
-                    _kanaPlayer = new SoundPlayer(ms);
-                    _kanaPlayer.Play();
-                    return;
+                    var ms = new MemoryStream(_wavCache[key]);
+                    _currentPlayer = new SoundPlayer(ms);
+                    _currentPlayer.Play();
+                    return true;
                 }
                 catch { }
             }
+            return false;
+        }
 
-            SpeakSentence(item.Hiragana);
+        public void PlayKana(KanaItem kana)
+        {
+            if (kana == null || kana.IsEmptySlot) return;
+
+            if (TryPlayWav(kana.Romaji)) return;
+
+            SpeakSentenceWithRate(kana.Hiragana, 0);
         }
 
         public void SpeakSentence(string text)
@@ -151,185 +146,120 @@ namespace KanaVox
             SpeakSentenceWithRate(text, 0);
         }
 
-        public void StartLoopSentence(string text, int rate)
-        {
-            StopAll();
-            _isLooping = true;
-            PlaySpeechWorker(text, rate, true);
-        }
-
-        public void SpeakSentenceWithRate(string text, int rate)
-        {
-            StopAll();
-            PlaySpeechWorker(text, rate, false);
-        }
-
-        private async void PlaySpeechWorker(string text, int rate, bool isLoop)
+        public void SpeakSentenceWithRate(string text, int rateOffset)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
 
-            _cts = new CancellationTokenSource();
-            var token = _cts.Token;
-
-            await Task.Run(new Func<Task>(async () =>
+            // 1. 若設定為 SAPI，直接調用系統本機語音，不發送網路請求
+            if (CurrentEngine == TtsEngineMode.Sapi)
             {
-                while (!token.IsCancellationRequested)
+                SpeakWithSapi(text, rateOffset);
+                return;
+            }
+
+            // 2. 若為 Edge-TTS，代理在線則走神經網路合成；離線時自動回退 SAPI 保底
+            if (IsProxyOnline)
+            {
+                Task.Run(new Func<Task>(async delegate
                 {
-                    // 1. 若當前未連線，或距離上次探測超過 10 秒，立即重新驗證連線
-                    if (!_isProxyAvailable || (DateTime.Now - _lastProxyCheck).TotalSeconds > 10)
+                    bool ok = await PlayFromProxyAsync(text, rateOffset);
+                    if (!ok)
                     {
-                        await CheckProxyHealthAsync();
+                        SpeakWithSapi(text, rateOffset);
                     }
-
-                    bool played = false;
-
-                    // 2. 優先嘗試 Edge-TTS 神經網路人聲
-                    if (_isProxyAvailable)
-                    {
-                        byte[] audioData = FetchProxyAudio(text, rate, token);
-                        if (token.IsCancellationRequested) break;
-
-                        if (audioData != null && audioData.Length > 44)
-                        {
-                            try
-                            {
-                                using (var ms = new MemoryStream(audioData))
-                                {
-                                    _activeSentencePlayer = new SoundPlayer(ms);
-                                    _activeSentencePlayer.PlaySync();
-                                }
-                                played = true;
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine("SoundPlayer 播放失敗: " + ex.Message);
-                            }
-                        }
-                    }
-
-                    // 3. 降級至系統 SAPI (完整阻塞至播放完畢)
-                    if (!played && HasJapaneseTts && !token.IsCancellationRequested)
-                    {
-                        try
-                        {
-                            _synth.Rate = Math.Max(-10, Math.Min(10, rate));
-                            _synth.Speak(text);
-                            played = true;
-                        }
-                        catch { }
-                    }
-
-                    if (!isLoop || token.IsCancellationRequested)
-                    {
-                        break;
-                    }
-
-                    // 循環模式：整句完整播畢後，靜默停頓 1.2 秒供跟讀
-                    try
-                    {
-                        await Task.Delay(1200, token);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break;
-                    }
-                }
-            }), token);
+                }));
+            }
+            else
+            {
+                SpeakWithSapi(text, rateOffset);
+            }
         }
 
-        private byte[] FetchProxyAudio(string text, int rate, CancellationToken token)
+        private async Task<bool> PlayFromProxyAsync(string text, int rateOffset)
         {
             try
             {
-                int percent = rate <= -5 ? -40 : (rate * 8);
-                string rateStr = percent >= 0 ? ("+" + percent + "%") : (percent + "%");
-                string url = ProxyBaseUrl + "/tts?text=" + Uri.EscapeDataString(text) + "&rate=" + Uri.EscapeDataString(rateStr);
+                int finalRate = _currentRate + rateOffset;
+                string rateParam = (finalRate >= 0 ? "+" : "") + (finalRate * 10) + "%";
+                string url = "http://127.0.0.1:5050/tts?text=" + Uri.EscapeDataString(text) + "&rate=" + Uri.EscapeDataString(rateParam);
 
                 var req = (HttpWebRequest)WebRequest.Create(url);
-                req.Timeout = 10000;
+                req.Timeout = 5000;
                 req.Method = "GET";
 
-                using (var resp = (HttpWebResponse)req.GetResponse())
+                using (var resp = (HttpWebResponse)await req.GetResponseAsync())
                 {
                     if (resp.StatusCode == HttpStatusCode.OK)
                     {
+                        using (var s = resp.GetResponseStream())
                         using (var ms = new MemoryStream())
                         {
-                            using (var stream = resp.GetResponseStream())
-                            {
-                                if (stream != null)
-                                {
-                                    byte[] buffer = new byte[8192];
-                                    int read;
-                                    while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-                                    {
-                                        if (token.IsCancellationRequested) return null;
-                                        ms.Write(buffer, 0, read);
-                                    }
-                                    return ms.ToArray();
-                                }
-                            }
+                            await s.CopyToAsync(ms);
+                            ms.Position = 0;
+                            StopAll();
+                            _currentPlayer = new SoundPlayer(ms);
+                            _currentPlayer.Play();
+                            return true;
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch { }
+            return false;
+        }
+
+        public void SpeakWithSapi(string text, int rateOffset)
+        {
+            try
             {
-                System.Diagnostics.Debug.WriteLine("FetchProxyAudio 連線異常: " + ex.Message);
-                _isProxyAvailable = false;
+                StopAll();
+                _synth.Rate = Math.Max(-10, Math.Min(10, _currentRate + rateOffset));
+                _synth.Volume = _currentVolume;
+                _synth.SpeakAsync(text);
             }
-            return null;
+            catch { }
+        }
+
+        public void StartLoopSentence(string text, int rateOffset)
+        {
+            IsLoopingActive = true;
+            SpeakSentenceWithRate(text, rateOffset);
         }
 
         public void StopAll()
         {
+            IsLoopingActive = false;
             try
             {
-                _isLooping = false;
-
-                if (_cts != null)
+                if (_currentPlayer != null)
                 {
-                    _cts.Cancel();
-                    _cts.Dispose();
-                    _cts = null;
+                    _currentPlayer.Stop();
+                    _currentPlayer.Dispose();
+                    _currentPlayer = null;
                 }
-
                 _synth.SpeakAsyncCancelAll();
-
-                if (_kanaPlayer != null)
-                {
-                    _kanaPlayer.Stop();
-                    _kanaPlayer.Dispose();
-                    _kanaPlayer = null;
-                }
-
-                if (_activeSentencePlayer != null)
-                {
-                    _activeSentencePlayer.Stop();
-                    _activeSentencePlayer.Dispose();
-                    _activeSentencePlayer = null;
-                }
             }
             catch { }
         }
 
         public void SetRate(int rate)
         {
-            _synth.Rate = Math.Max(-10, Math.Min(10, rate));
+            _currentRate = Math.Max(-10, Math.Min(10, rate));
         }
 
         public void SetVolume(int volume)
         {
-            _synth.Volume = Math.Max(0, Math.Min(100, volume));
+            _currentVolume = Math.Max(0, Math.Min(100, volume));
         }
 
         public void Dispose()
         {
             StopAll();
-            if (_synth != null)
+            try
             {
                 _synth.Dispose();
             }
+            catch { }
         }
     }
 }

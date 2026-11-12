@@ -1,11 +1,14 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -21,7 +24,10 @@ namespace KanaVox
         private KanaItem _selectedKana;
         private bool _isUiInitialized = false;
 
-        // 本地語音代理 (edge_tts_proxy.py) 處理程序託管
+        // 暫存上次選用的 Ollama 模型名稱，供非同步清單載入後還原
+        private string _savedOllamaModel = "";
+
+        // 本地語音與形態素微服務 (edge_tts_proxy.py) 處理程序託管
         private Process _proxyProcess = null;
 
         private bool _isGridShuffled = false;
@@ -58,6 +64,10 @@ namespace KanaVox
 
             _audioService = new AudioService();
             _ollamaService = new OllamaService();
+            if (!string.IsNullOrEmpty(_savedOllamaModel))
+            {
+                _ollamaService.CurrentModel = _savedOllamaModel;
+            }
 
             _choiceButtons = new[] { BtnChoice0, BtnChoice1, BtnChoice2, BtnChoice3 };
 
@@ -72,11 +82,8 @@ namespace KanaVox
 
             _selectedKana = new KanaItem("あ", "ア", "a", KanaCategory.Seion, false, "あ行", "安", "阿");
 
-            var defaultSentences = KanaRepository.GetSampleSentences();
-            var customSentences = KanaRepository.LoadCustomSentences();
-            _allSentences = new List<SentenceItem>();
-            _allSentences.AddRange(customSentences);
-            _allSentences.AddRange(defaultSentences);
+            // 統一由儲存庫載入例句清單（首次啟動自動寫入預設種子範例，後續完全依本機檔案為準）
+            _allSentences = KanaRepository.LoadCustomSentences();
 
             BuildKanaGrids();
             InitializeBlitzTab();
@@ -90,16 +97,15 @@ namespace KanaVox
 
             UpdateStatusBar();
 
-            if (ChkEnableOllama.IsChecked == true)
+            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
+                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+            if (isOllamaActive)
             {
                 InitializeOllamaModelsAsync();
             }
 
-            // 若使用者啟用了「自動常駐語音代理」，啟動時在背景呼叫
-            if (ChkAutoStartProxy.IsChecked == true)
-            {
-                StartProxyProcess();
-            }
+            // 智慧自動常駐：只要「發音走 Edge-TTS」或「標音走 pykakasi」，啟動時自動在背景常駐
+            EnsureProxyRunningIfNeeded();
         }
 
         private void ApplySavedWindowPlacement()
@@ -123,10 +129,40 @@ namespace KanaVox
                 Height = 1220;
             }
 
-            ChkEnableOllama.IsChecked = settings.EnableOllama;
-            UpdateOllamaVisibility(settings.EnableOllama);
+            // 1. 恢復發音引擎選擇
+            if (CmbTtsEngine != null)
+            {
+                CmbTtsEngine.SelectedIndex = (settings.TtsEngine == TtsEngineMode.Sapi) ? 1 : 0;
+            }
 
-            ChkAutoStartProxy.IsChecked = settings.AutoStartTtsProxy;
+            // 2. 恢復標音解析引擎選擇
+            bool isOllama = (settings.AnalysisEngine == AnalysisEngineMode.Ollama) || settings.EnableOllama;
+            if (CmbAnalysisEngine != null)
+            {
+                CmbAnalysisEngine.SelectedIndex = isOllama ? 1 : 0;
+            }
+            if (ChkEnableOllama != null)
+            {
+                ChkEnableOllama.IsChecked = isOllama;
+            }
+
+            // 3. 恢復 AI 難度、情境風格與模型名稱偏好
+            if (CmbAiLevel != null)
+            {
+                string savedLevel = string.IsNullOrEmpty(settings.LastAiLevel) ? "N5" : settings.LastAiLevel;
+                if (savedLevel.Contains("N4")) CmbAiLevel.SelectedIndex = 1;
+                else if (savedLevel.Contains("N3")) CmbAiLevel.SelectedIndex = 2;
+                else CmbAiLevel.SelectedIndex = 0;
+            }
+
+            if (CmbAiTopic != null)
+            {
+                CmbAiTopic.Text = string.IsNullOrEmpty(settings.LastAiTopic) ? "日常會話" : settings.LastAiTopic;
+            }
+
+            _savedOllamaModel = settings.LastOllamaModel ?? "";
+
+            UpdateAnalysisUi(isOllama);
 
             Loaded += (s, e) =>
             {
@@ -142,12 +178,41 @@ namespace KanaVox
             // 視窗關閉前徹底結束背景 Python 處理程序與其子程序
             StopProxyProcess();
 
+            bool isOllama = (CmbAnalysisEngine != null) ? (CmbAnalysisEngine.SelectedIndex == 1) : (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+            bool isSapi = (CmbTtsEngine != null && CmbTtsEngine.SelectedIndex == 1);
+
+            // 取得當前選定之難度字串
+            string currentLevel = "N5";
+            if (CmbAiLevel != null && CmbAiLevel.SelectedItem != null)
+            {
+                var lvlItem = CmbAiLevel.SelectedItem as ComboBoxItem;
+                string lvlText = lvlItem != null ? lvlItem.Content.ToString() : CmbAiLevel.SelectedItem.ToString();
+                if (lvlText.Contains("N4")) currentLevel = "N4";
+                else if (lvlText.Contains("N3")) currentLevel = "N3";
+                else currentLevel = "N5";
+            }
+
+            // 取得當前輸入或選定之情境字串
+            string currentTopic = (CmbAiTopic != null && !string.IsNullOrWhiteSpace(CmbAiTopic.Text))
+                ? CmbAiTopic.Text.Trim()
+                : "日常會話";
+
+            // 取得當前選用的 Ollama 模型名稱
+            string currentModel = (_ollamaService != null && !string.IsNullOrEmpty(_ollamaService.CurrentModel))
+                ? _ollamaService.CurrentModel
+                : _savedOllamaModel;
+
             var settings = new WindowSettings
             {
                 HasSavedPosition = true,
                 IsMaximized = (WindowState == WindowState.Maximized),
-                EnableOllama = (ChkEnableOllama.IsChecked == true),
-                AutoStartTtsProxy = (ChkAutoStartProxy.IsChecked == true)
+                EnableOllama = isOllama,
+                AutoStartTtsProxy = true,
+                TtsEngine = isSapi ? TtsEngineMode.Sapi : TtsEngineMode.EdgeTts,
+                AnalysisEngine = isOllama ? AnalysisEngineMode.Ollama : AnalysisEngineMode.PyKakasi,
+                LastAiLevel = currentLevel,
+                LastAiTopic = currentTopic,
+                LastOllamaModel = currentModel
             };
 
             if (WindowState == WindowState.Maximized)
@@ -169,22 +234,71 @@ namespace KanaVox
             base.OnClosing(e);
         }
 
-        // ================= 本地 Edge-TTS 語音代理處理程序管控 =================
-        private void ChkAutoStartProxy_Changed(object sender, RoutedEventArgs e)
+        // ================= 本地 Edge-TTS 與形態素微服務生命週期管理 =================
+        private void EnsureProxyRunningIfNeeded()
         {
-            if (!_isUiInitialized) return;
-            bool autoStart = ChkAutoStartProxy.IsChecked == true;
-            if (autoStart)
+            bool needEdgeTts = (CmbTtsEngine == null || CmbTtsEngine.SelectedIndex == 0);
+            bool needPyKakasi = (CmbAnalysisEngine == null || CmbAnalysisEngine.SelectedIndex == 0);
+
+            if (needEdgeTts || needPyKakasi)
             {
                 StartProxyProcess();
-                TxtStatusBar.Text = "⚡ 已啟用「自動常駐語音代理」，正在啟動 edge_tts_proxy.py...";
             }
-            else
+        }
+
+        // 智慧尋找真實 Python 執行檔路徑（主動避開 WindowsApps 微軟商店假捷徑）
+        private string GetPythonExecutablePath()
+        {
+            try
             {
-                StopProxyProcess();
-                TxtStatusBar.Text = "⚡ 已停用自動啟動語音代理，處理程序已結束。";
-                UpdateStatusBar();
+                // 1. 優先尋找使用者 AppData Programs Python
+                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string userPythonDir = Path.Combine(localAppData, @"Programs\Python");
+                if (Directory.Exists(userPythonDir))
+                {
+                    var pyDirs = Directory.GetDirectories(userPythonDir, "Python*");
+                    Array.Sort(pyDirs);
+                    Array.Reverse(pyDirs); // 取最新版本如 Python312
+                    foreach (var dir in pyDirs)
+                    {
+                        string candidate = Path.Combine(dir, "python.exe");
+                        if (File.Exists(candidate)) return candidate;
+                    }
+                }
+
+                // 2. 檢查常見全域與系統磁碟安裝路徑
+                string[] commonPaths = new[]
+                {
+                    @"C:\Python312\python.exe",
+                    @"C:\Python311\python.exe",
+                    @"C:\Python310\python.exe",
+                    @"D:\Python312\python.exe",
+                    @"D:\Python\python.exe"
+                };
+                foreach (var p in commonPaths)
+                {
+                    if (File.Exists(p)) return p;
+                }
+
+                // 3. 檢查系統 PATH，但主動排除 WindowsApps
+                string pathEnv = Environment.GetEnvironmentVariable("PATH");
+                if (!string.IsNullOrEmpty(pathEnv))
+                {
+                    string[] entries = pathEnv.Split(';');
+                    foreach (var entry in entries)
+                    {
+                        string trimmed = entry.Trim();
+                        if (string.IsNullOrEmpty(trimmed)) continue;
+                        if (trimmed.IndexOf("WindowsApps", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+
+                        string candidate = Path.Combine(trimmed, "python.exe");
+                        if (File.Exists(candidate)) return candidate;
+                    }
+                }
             }
+            catch { }
+
+            return "python";
         }
 
         private void StartProxyProcess()
@@ -195,6 +309,18 @@ namespace KanaVox
                 {
                     UpdateStatusBar();
                     return;
+                }
+
+                // 若舊處理程序遺留但無回應，先行防護清除
+                if (_proxyProcess != null)
+                {
+                    try
+                    {
+                        if (!_proxyProcess.HasExited) _proxyProcess.Kill();
+                    }
+                    catch { }
+                    _proxyProcess.Dispose();
+                    _proxyProcess = null;
                 }
 
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
@@ -212,15 +338,16 @@ namespace KanaVox
 
                 if (!File.Exists(scriptPath))
                 {
-                    TxtStatusBar.Text = "⚠️ 找不到 edge_tts_proxy.py，無法自動啟動語音代理。";
+                    TxtStatusBar.Text = "⚠️ 找不到 edge_tts_proxy.py，無法啟動本地代理服務。";
                     return;
                 }
 
                 string workingDir = Path.GetDirectoryName(scriptPath);
+                string pythonExe = GetPythonExecutablePath();
 
                 var psi = new ProcessStartInfo
                 {
-                    FileName = "python",
+                    FileName = pythonExe,
                     Arguments = "\"" + scriptPath + "\"",
                     WorkingDirectory = workingDir,
                     CreateNoWindow = true,
@@ -230,16 +357,24 @@ namespace KanaVox
 
                 _proxyProcess = Process.Start(psi);
 
-                var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1500) };
-                timer.Tick += (s, e) =>
+                // 輪詢機制：每 500ms 檢查一次，最多探測 12 次 (6 秒)，適應 pykakasi 字典載入耗時
+                int attempts = 0;
+                var pollTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+                pollTimer.Tick += async (s, e) =>
                 {
-                    timer.Stop();
-                    _audioService.CheckProxyHealthAsync().ContinueWith(t =>
+                    attempts++;
+                    bool online = await _audioService.CheckProxyHealthAsync();
+                    if (online || attempts >= 12)
                     {
-                        Dispatcher.Invoke(new Action(() => UpdateStatusBar()));
-                    });
+                        pollTimer.Stop();
+                        UpdateStatusBar();
+                        if (online)
+                        {
+                            TxtStatusBar.Text = "⚡ 本地語音與形態素服務已就緒 (Port 5050 在線)。";
+                        }
+                    }
                 };
-                timer.Start();
+                pollTimer.Start();
             }
             catch (Exception ex)
             {
@@ -271,49 +406,101 @@ namespace KanaVox
             catch { }
         }
 
-        // ================= Ollama 控制與動態顯隱 =================
-        private void ChkEnableOllama_Changed(object sender, RoutedEventArgs e)
+        // ================= 1. 發音引擎獨立切換 =================
+        private void CmbTtsEngine_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_isUiInitialized || _audioService == null) return;
+
+            bool isSapi = (CmbTtsEngine != null && CmbTtsEngine.SelectedIndex == 1);
+            _audioService.CurrentEngine = isSapi ? TtsEngineMode.Sapi : TtsEngineMode.EdgeTts;
+
+            // 若切換為 Edge-TTS 且服務離線，自動背景喚醒
+            if (!isSapi && !_audioService.IsProxyOnline)
+            {
+                StartProxyProcess();
+            }
+
+            UpdateStatusBar();
+            TxtStatusBar.Text = isSapi 
+                ? "🔊 發音引擎已切換為：Windows 原生 SAPI（完全離線）" 
+                : "🔊 發音引擎已切換為：Edge-TTS 神經網路語音";
+        }
+
+        // ================= 2. 標音解析引擎獨立切換 =================
+        private void CmbAnalysisEngine_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!_isUiInitialized) return;
-            bool enabled = ChkEnableOllama.IsChecked == true;
-            UpdateOllamaVisibility(enabled);
 
-            if (enabled)
+            bool isOllama = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1);
+            UpdateAnalysisUi(isOllama);
+            RenderFilteredSentences();
+
+            if (isOllama)
             {
-                TxtStatusBar.Text = "🤖 已啟用本機 Ollama AI 助教，正在檢查連線與模型清單...";
+                TxtStatusBar.Text = "🤖 已啟用本機 Ollama 深度解析模式。";
                 InitializeOllamaModelsAsync();
             }
             else
             {
-                if (BorderMnemonic != null) BorderMnemonic.Visibility = Visibility.Collapsed;
+                // 切換為 pykakasi 時，若服務離線則自動背景喚醒
+                if (!_audioService.IsProxyOnline)
+                {
+                    StartProxyProcess();
+                }
+
+                TxtStatusBar.Text = "⚡ 已啟用本地形態素 (pykakasi) 極速標音模式。";
                 UpdateStatusBar();
             }
         }
 
-        private void UpdateOllamaVisibility(bool enabled)
+        // 向下相容舊版 CheckBox 切換事件
+        private void ChkEnableOllama_Changed(object sender, RoutedEventArgs e)
         {
-            // 保持工具列始終顯示，讓本地靜態口訣與例句按鈕隨時可用
+            if (!_isUiInitialized) return;
+            bool enabled = (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+            if (CmbAnalysisEngine != null)
+            {
+                CmbAnalysisEngine.SelectedIndex = enabled ? 1 : 0;
+            }
+            else
+            {
+                UpdateAnalysisUi(enabled);
+                RenderFilteredSentences();
+                if (enabled) InitializeOllamaModelsAsync(); else UpdateStatusBar();
+            }
+        }
+
+        private void UpdateAnalysisUi(bool isOllamaActive)
+        {
             if (BorderAiToolbar != null)
                 BorderAiToolbar.Visibility = Visibility.Visible;
 
             if (CmbOllamaModel != null)
-                CmbOllamaModel.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
+                CmbOllamaModel.Visibility = isOllamaActive ? Visibility.Visible : Visibility.Collapsed;
 
-            // 振假名解析按鈕常時顯示，根據模式自動切換標籤文字
+            // 第二層：難度與情境客製面板連動（僅在切換至 Ollama 時展開）
+            if (PanelAiCustomOptions != null)
+                PanelAiCustomOptions.Visibility = isOllamaActive ? Visibility.Visible : Visibility.Collapsed;
+
             if (BtnAiAnalyzeCustom != null)
             {
                 BtnAiAnalyzeCustom.Visibility = Visibility.Visible;
-                BtnAiAnalyzeCustom.Content = enabled ? "🪄 AI 解析例句" : "🪄 本地解析振假名";
+                BtnAiAnalyzeCustom.Content = isOllamaActive ? "🪄 AI 解析例句" : "🪄 本地解析振假名";
             }
 
             if (BtnAiSentence != null)
-                BtnAiSentence.Content = enabled ? "✨ AI 假名造句" : "📖 假名精選例句";
+                BtnAiSentence.Content = isOllamaActive ? "✨ AI 假名造句" : "📖 假名精選例句";
 
             if (BtnAiMnemonic != null)
-                BtnAiMnemonic.Content = enabled ? "💡 AI 記憶口訣" : "💡 假名字源口訣";
+                BtnAiMnemonic.Content = isOllamaActive ? "💡 AI 記憶口訣" : "💡 假名字源口訣";
 
-            if (!enabled && BorderMnemonic != null)
+            if (!isOllamaActive && BorderMnemonic != null)
                 BorderMnemonic.Visibility = Visibility.Collapsed;
+        }
+
+        private void UpdateOllamaVisibility(bool enabled)
+        {
+            UpdateAnalysisUi(enabled);
         }
 
         private async void InitializeOllamaModelsAsync()
@@ -321,22 +508,46 @@ namespace KanaVox
             string[] fallbackModels = new[] { "qwen2.5:7b", "qwen2.5:14b", "llama3:latest" };
             var installed = await _ollamaService.GetAvailableModelsAsync();
 
+            if (CmbOllamaModel == null) return;
+
             CmbOllamaModel.Items.Clear();
             if (installed.Count > 0)
             {
                 foreach (var m in installed) CmbOllamaModel.Items.Add(m);
-                int idx = 0;
-                for (int i = 0; i < installed.Count; i++)
+
+                // 優先比對上次儲存的模型名稱
+                int idx = -1;
+                if (!string.IsNullOrEmpty(_savedOllamaModel))
                 {
-                    if (installed[i].StartsWith("qwen2.5", StringComparison.OrdinalIgnoreCase))
+                    for (int i = 0; i < installed.Count; i++)
                     {
-                        idx = i;
-                        break;
+                        if (string.Equals(installed[i], _savedOllamaModel, StringComparison.OrdinalIgnoreCase))
+                        {
+                            idx = i;
+                            break;
+                        }
                     }
                 }
+
+                // 若無紀錄或該模型已不存在，回退至預設 qwen2.5 系列
+                if (idx < 0)
+                {
+                    idx = 0;
+                    for (int i = 0; i < installed.Count; i++)
+                    {
+                        if (installed[i].StartsWith("qwen2.5", StringComparison.OrdinalIgnoreCase))
+                        {
+                            idx = i;
+                            break;
+                        }
+                    }
+                }
+
                 CmbOllamaModel.SelectedIndex = idx;
                 _ollamaService.CurrentModel = CmbOllamaModel.SelectedItem.ToString();
-                TxtStatusBar.Text = string.Format("✅ 本機 Ollama 連線成功，已載入 {0} 個可用模型。", installed.Count);
+                _savedOllamaModel = _ollamaService.CurrentModel;
+                UpdateStatusBar();
+                TxtStatusBar.Text = string.Format("✅ 本機 Ollama 連線成功，已載入 {0} 個可用模型（目前：{1}）。", installed.Count, _ollamaService.CurrentModel);
             }
             else
             {
@@ -877,7 +1088,8 @@ namespace KanaVox
                 return;
             }
 
-            if (TxtCustomTts != null && TxtCustomTts.IsFocused) return;
+            // 若目前游標焦點位於任一輸入框或唯讀解析文本框內，避免觸發背景測驗與閃卡快捷鍵
+            if (Keyboard.FocusedElement is TextBox) return;
 
             if (MainTabControl != null && MainTabControl.SelectedIndex == 3)
             {
@@ -1286,7 +1498,7 @@ namespace KanaVox
             GenerateQuizQuestion(false);
         }
 
-        // ================= 5. 右側情境例句渲染與獨立複製 =================
+        // ================= 5. 右側情境例句渲染、手風琴 AI 詳解與獨立複製 =================
         private void RenderFilteredSentences()
         {
             if (SentenceListPanel == null) return;
@@ -1327,69 +1539,224 @@ namespace KanaVox
             }
         }
 
+        // 輔助方法：將詞語中的促音（っ/ッ）與長音（ー）標記為珊瑚橘色，其餘維持預設色
+        private void PopulateHighlightedInlines(TextBlock tb, string text, Brush defaultBrush, Brush specialBrush)
+        {
+            tb.Inlines.Clear();
+            if (string.IsNullOrEmpty(text)) return;
+
+            var buffer = new StringBuilder();
+            foreach (char c in text)
+            {
+                if (c == 'っ' || c == 'ッ' || c == 'ー')
+                {
+                    if (buffer.Length > 0)
+                    {
+                        tb.Inlines.Add(new Run(buffer.ToString()) { Foreground = defaultBrush });
+                        buffer.Clear();
+                    }
+                    tb.Inlines.Add(new Run(c.ToString())
+                    {
+                        Foreground = specialBrush,
+                        FontWeight = FontWeights.Bold
+                    });
+                }
+                else
+                {
+                    buffer.Append(c);
+                }
+            }
+
+            if (buffer.Length > 0)
+            {
+                tb.Inlines.Add(new Run(buffer.ToString()) { Foreground = defaultBrush });
+            }
+        }
+
         private UIElement CreateSentenceCard(SentenceItem s)
         {
+            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
+                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+            bool hasCachedNote = !string.IsNullOrWhiteSpace(s.AiNote);
+
             var card = new Border
             {
                 Background = new SolidColorBrush(Color.FromRgb(49, 50, 68)),
                 CornerRadius = new CornerRadius(6),
-                Padding = new Thickness(12, 10, 12, 10),
+                Padding = new Thickness(12, 10, 10, 10),
                 Margin = new Thickness(0, 0, 0, 10)
             };
+
+            // 外層垂直堆疊：上方為例句與操作列，下方為可折疊的手風琴 AI 詳解面板
+            var outerStack = new StackPanel();
 
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            var leftStack = new StackPanel();
-
-            leftStack.Children.Add(new TextBlock
+            var leftStack = new StackPanel
             {
-                Text = "【" + s.Category + "】" + (s.IsCustom ? " (本機已儲存)" : ""),
+                Margin = new Thickness(0, 0, 6, 0)
+            };
+
+            // 第一行：分類標籤 + 「🎓 詳解 / 查看筆記」按鈕（策略 B：pykakasi 下僅有舊筆記時才顯示供離線查閱）
+            var headerRowGrid = new Grid { Margin = new Thickness(0, 0, 0, 4) };
+            headerRowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            headerRowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var headerCatText = new TextBlock
+            {
+                Text = "【" + s.Category + "】 (本機已儲存)",
                 FontSize = 11.5,
-                Foreground = s.IsCustom
-                    ? new SolidColorBrush(Color.FromRgb(166, 227, 161))
-                    : new SolidColorBrush(Color.FromRgb(249, 226, 175)),
+                Foreground = new SolidColorBrush(Color.FromRgb(166, 227, 161)),
                 FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(0, 0, 0, 4)
-            });
+                VerticalAlignment = VerticalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap
+            };
+            Grid.SetColumn(headerCatText, 0);
+            headerRowGrid.Children.Add(headerCatText);
+
+            var explainBtn = new Button
+            {
+                Content = hasCachedNote ? "🎓 查看筆記" : "🎓 詳解",
+                Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 11.5,
+                FontWeight = FontWeights.SemiBold,
+                Background = new SolidColorBrush(Color.FromRgb(69, 71, 90)),
+                Foreground = new SolidColorBrush(Color.FromRgb(203, 166, 247)),
+                Padding = new Thickness(8, 2, 8, 2),
+                Margin = new Thickness(6, 0, 0, 0),
+                ToolTip = isOllamaActive
+                    ? "展開或收合本句的文法句型、結構拆解、原形動詞與記憶口訣"
+                    : "展開或收合先前已儲存的 AI 教學筆記（目前為本地形態素模式，僅供離線查閱）",
+                Visibility = (isOllamaActive || hasCachedNote) ? Visibility.Visible : Visibility.Collapsed
+            };
+            Grid.SetColumn(explainBtn, 1);
+            headerRowGrid.Children.Add(explainBtn);
+
+            leftStack.Children.Add(headerRowGrid);
 
             var rubyWrap = new WrapPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 4) };
             bool highlightTarget = ChkLinkKanaFilter.IsChecked == true && _selectedKana != null;
 
+            // 預設色彩配置（支援促音／長音／助詞變音高亮與點擊懸停提示）
+            var furiganaNormalBrush = new SolidColorBrush(Color.FromRgb(137, 180, 250));
+            var textNormalBrush = new SolidColorBrush(Color.FromRgb(205, 214, 244));
+            var textHitBrush = new SolidColorBrush(Color.FromRgb(249, 226, 175));
+            var specialPhoneticBrush = new SolidColorBrush(Color.FromRgb(250, 179, 135)); // 珊瑚橘：促音 っ/ッ、長音 ー
+            var particleHintBrush = new SolidColorBrush(Color.FromRgb(245, 194, 231));    // 粉紫：助詞變音 wa / e / o
+            var segmentHoverBrush = new SolidColorBrush(Color.FromArgb(55, 137, 180, 250));
+
             foreach (RubySegment seg in s.Segments)
             {
+                string rawSegText = seg.Text ?? "";
+                string trimmedSeg = rawSegText.Trim();
+                bool isPureKana = string.IsNullOrEmpty(seg.Furigana);
+
+                // 判斷是否為獨立助詞變音（は -> wa、へ -> e、を -> o）
+                string particleRomajiHint = null;
+                if (isPureKana && trimmedSeg == "は") particleRomajiHint = "wa";
+                else if (isPureKana && trimmedSeg == "へ") particleRomajiHint = "e";
+                else if (isPureKana && trimmedSeg == "を") particleRomajiHint = "o";
+
                 var segStack = new StackPanel
                 {
                     Orientation = Orientation.Vertical,
-                    Margin = new Thickness(0, 0, 2, 0),
                     VerticalAlignment = VerticalAlignment.Bottom
                 };
 
-                segStack.Children.Add(new TextBlock
+                // 1. 上方振假名或助詞變音提示列
+                var furiTb = new TextBlock
                 {
-                    Text = string.IsNullOrEmpty(seg.Furigana) ? " " : seg.Furigana,
                     FontSize = 10.5,
-                    Foreground = new SolidColorBrush(Color.FromRgb(137, 180, 250)),
                     HorizontalAlignment = HorizontalAlignment.Center
-                });
+                };
 
+                if (!string.IsNullOrEmpty(seg.Furigana))
+                {
+                    PopulateHighlightedInlines(furiTb, seg.Furigana, furiganaNormalBrush, specialPhoneticBrush);
+                }
+                else if (particleRomajiHint != null)
+                {
+                    furiTb.Text = particleRomajiHint;
+                    furiTb.Foreground = particleHintBrush;
+                    furiTb.FontWeight = FontWeights.Bold;
+                }
+                else
+                {
+                    furiTb.Text = " ";
+                    furiTb.Foreground = furiganaNormalBrush;
+                }
+                segStack.Children.Add(furiTb);
+
+                // 2. 下方日文主文列（含選中假名高亮與促音／長音／助詞染色）
                 bool isHit = highlightTarget &&
                              ((!string.IsNullOrEmpty(seg.Text) && (seg.Text.Contains(_selectedKana.Hiragana) || seg.Text.Contains(_selectedKana.Katakana))) ||
                               (!string.IsNullOrEmpty(seg.Furigana) && (seg.Furigana.Contains(_selectedKana.Hiragana) || seg.Furigana.Contains(_selectedKana.Katakana))));
 
-                segStack.Children.Add(new TextBlock
+                Brush baseMainBrush = (particleRomajiHint != null)
+                    ? particleHintBrush
+                    : (isHit ? textHitBrush : textNormalBrush);
+
+                var mainTb = new TextBlock
                 {
-                    Text = seg.Text,
                     FontSize = 18,
                     FontWeight = FontWeights.SemiBold,
-                    Foreground = isHit
-                        ? new SolidColorBrush(Color.FromRgb(249, 226, 175))
-                        : new SolidColorBrush(Color.FromRgb(205, 214, 244)),
                     HorizontalAlignment = HorizontalAlignment.Center
-                });
+                };
+                PopulateHighlightedInlines(mainTb, rawSegText, baseMainBrush, specialPhoneticBrush);
+                segStack.Children.Add(mainTb);
 
-                rubyWrap.Children.Add(segStack);
+                // 3. 單詞點擊獨立發音容器（排除純標點符號）
+                bool isSpeakable = trimmedSeg.Any(c => (c >= 0x3040 && c <= 0x30FF) || (c >= 0x4E00 && c <= 0x9FFF) || char.IsLetterOrDigit(c));
+                if (isSpeakable)
+                {
+                    var segBorder = new Border
+                    {
+                        Background = Brushes.Transparent,
+                        CornerRadius = new CornerRadius(4),
+                        Padding = new Thickness(2, 1, 2, 1),
+                        Margin = new Thickness(0, 0, 1, 0),
+                        Cursor = Cursors.Hand,
+                        Child = segStack
+                    };
+
+                    // 組合提示文字（發音規則說明 + 點讀提示）
+                    string ruleHint = "";
+                    if (particleRomajiHint == "wa") ruleHint = "助詞「は」在此讀作 wa｜";
+                    else if (particleRomajiHint == "e") ruleHint = "助詞「へ」在此讀作 e｜";
+                    else if (particleRomajiHint == "o") ruleHint = "助詞「を」讀作 o（受詞標記）｜";
+                    else if (rawSegText.IndexOf('っ') >= 0 || rawSegText.IndexOf('ッ') >= 0 || (!string.IsNullOrEmpty(seg.Furigana) && seg.Furigana.IndexOf('っ') >= 0))
+                        ruleHint = "含促音「っ/ッ」，發音時停頓一拍｜";
+                    else if (rawSegText.IndexOf('ー') >= 0)
+                        ruleHint = "含長音「ー」，母音拉長一拍｜";
+
+                    segBorder.ToolTip = ruleHint + "點擊單獨朗讀「" + trimmedSeg + "」";
+
+                    segBorder.MouseEnter += (ms, me) => segBorder.Background = segmentHoverBrush;
+                    segBorder.MouseLeave += (ms, me) => segBorder.Background = Brushes.Transparent;
+
+                    // 針對獨立助詞「は / へ」傳入實際讀音假名，避免單字合成誤讀為 ha / he
+                    string speakPayload = trimmedSeg;
+                    if (particleRomajiHint == "wa") speakPayload = "わ";
+                    else if (particleRomajiHint == "e") speakPayload = "え";
+
+                    string displayLabel = trimmedSeg;
+                    segBorder.MouseLeftButtonUp += (ms, me) =>
+                    {
+                        me.Handled = true;
+                        StopLooping();
+                        _audioService.SpeakSentence(speakPayload);
+                        TxtStatusBar.Text = string.Format("🔊 單詞點讀：{0}", displayLabel);
+                    };
+
+                    rubyWrap.Children.Add(segBorder);
+                }
+                else
+                {
+                    segStack.Margin = new Thickness(0, 1, 2, 1);
+                    rubyWrap.Children.Add(segStack);
+                }
             }
             leftStack.Children.Add(rubyWrap);
 
@@ -1398,25 +1765,32 @@ namespace KanaVox
                 Text = s.Romaji,
                 FontSize = 12,
                 Foreground = new SolidColorBrush(Color.FromRgb(147, 153, 178)),
-                Margin = new Thickness(0, 2, 0, 2)
+                Margin = new Thickness(0, 2, 0, 3),
+                TextWrapping = TextWrapping.Wrap
             });
 
             leftStack.Children.Add(new TextBlock
             {
                 Text = s.Translation,
                 FontSize = 13.5,
-                Foreground = new SolidColorBrush(Color.FromRgb(166, 227, 161))
+                Foreground = new SolidColorBrush(Color.FromRgb(166, 227, 161)),
+                TextWrapping = TextWrapping.Wrap,
+                LineHeight = 19
             });
 
             Grid.SetColumn(leftStack, 0);
             grid.Children.Add(leftStack);
 
+            // 右側緊湊型操作按鈕列，釋放更多水平寬度給左側本文
             var btnPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(10, 0, 0, 0)
+                Margin = new Thickness(4, 0, 0, 0)
             };
+
+            var compactBtnMargin = new Thickness(2, 0, 2, 0);
+            var compactBtnPadding = new Thickness(7, 4, 7, 4);
 
             string rawJp = s.GetRawJapaneseText();
 
@@ -1424,6 +1798,9 @@ namespace KanaVox
             {
                 Content = "🔊 朗讀",
                 Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 12,
+                Margin = compactBtnMargin,
+                Padding = compactBtnPadding,
                 Tag = rawJp
             };
             playBtn.Click += (sender, e) =>
@@ -1436,6 +1813,9 @@ namespace KanaVox
             {
                 Content = "🐢 慢速",
                 Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 12,
+                Margin = compactBtnMargin,
+                Padding = compactBtnPadding,
                 ToolTip = "以 -5 慢速清晰朗讀",
                 Tag = rawJp
             };
@@ -1449,6 +1829,9 @@ namespace KanaVox
             {
                 Content = "🔁 循環",
                 Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 12,
+                Margin = compactBtnMargin,
+                Padding = compactBtnPadding,
                 ToolTip = "單句循環跟讀",
                 Tag = rawJp
             };
@@ -1458,6 +1841,9 @@ namespace KanaVox
             {
                 Content = "📋 複製",
                 Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 12,
+                Margin = compactBtnMargin,
+                Padding = compactBtnPadding,
                 ToolTip = "複製日文原文至剪貼簿（按住 Shift 點擊可複製含發音與中文的完整多行內容）",
                 Tag = s
             };
@@ -1510,38 +1896,268 @@ namespace KanaVox
                 }
             };
 
+            var delBtn = new Button
+            {
+                Content = "🗑",
+                Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 12,
+                ToolTip = "自本機儲存庫中刪除此例句（刪除後將永久移除）",
+                Background = Brushes.Transparent,
+                Foreground = new SolidColorBrush(Color.FromRgb(243, 139, 168)),
+                Margin = new Thickness(2, 0, 0, 0),
+                Padding = new Thickness(5, 4, 5, 4)
+            };
+            delBtn.Click += (sender, e) =>
+            {
+                StopLooping();
+                _allSentences.Remove(s);
+                KanaRepository.SaveCustomSentences(_allSentences);
+                InitializeCategories();
+                RenderFilteredSentences();
+                UpdateStatusBar();
+            };
+
             btnPanel.Children.Add(playBtn);
             btnPanel.Children.Add(slowBtn);
             btnPanel.Children.Add(loopBtn);
             btnPanel.Children.Add(copyBtn);
-
-            if (s.IsCustom)
-            {
-                var delBtn = new Button
-                {
-                    Content = "🗑",
-                    Style = (Style)FindResource("ActionBtnStyle"),
-                    ToolTip = "自本機儲存庫中刪除此例句",
-                    Background = Brushes.Transparent,
-                    Foreground = new SolidColorBrush(Color.FromRgb(243, 139, 168)),
-                    Padding = new Thickness(6, 4, 6, 4)
-                };
-                delBtn.Click += (sender, e) =>
-                {
-                    StopLooping();
-                    _allSentences.Remove(s);
-                    KanaRepository.SaveCustomSentences(_allSentences);
-                    InitializeCategories();
-                    RenderFilteredSentences();
-                    UpdateStatusBar();
-                };
-                btnPanel.Children.Add(delBtn);
-            }
+            btnPanel.Children.Add(delBtn);
 
             Grid.SetColumn(btnPanel, 1);
             grid.Children.Add(btnPanel);
+            outerStack.Children.Add(grid);
 
-            card.Child = grid;
+            // ================= 底部手風琴展開區塊（單句 AI 詳解） =================
+            var accordionBorder = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(30, 30, 46)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(69, 71, 90)),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(6),
+                Margin = new Thickness(0, 8, 0, 0),
+                Padding = new Thickness(10, 8, 10, 8),
+                Visibility = Visibility.Collapsed
+            };
+
+            var accordionStack = new StackPanel();
+
+            var accHeaderGrid = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+            accHeaderGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            accHeaderGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var accTitleText = new TextBlock
+            {
+                Text = isOllamaActive
+                    ? "🤖 AI 助教深度解析（文法句型・結構拆解・原形還原・記憶口訣）"
+                    : "🤖 AI 助教深度解析（已快取離線筆記・唯讀檢視）",
+                FontSize = 11.5,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(203, 166, 247)),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(accTitleText, 0);
+            accHeaderGrid.Children.Add(accTitleText);
+
+            var accBtnPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var copyNoteBtn = new Button
+            {
+                Content = "📋 複製解析",
+                Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 11,
+                Background = new SolidColorBrush(Color.FromRgb(49, 50, 68)),
+                Foreground = new SolidColorBrush(Color.FromRgb(166, 227, 161)),
+                Padding = new Thickness(7, 2, 7, 2),
+                Margin = new Thickness(0, 0, 4, 0),
+                ToolTip = "一鍵複製整段解析內容（按住 Shift 點擊可連同上方日文例句與翻譯一併複製）"
+            };
+
+            var refreshBtn = new Button
+            {
+                Content = "🔄 重新刷新",
+                Style = (Style)FindResource("ActionBtnStyle"),
+                FontSize = 11,
+                Background = new SolidColorBrush(Color.FromRgb(49, 50, 68)),
+                Foreground = new SolidColorBrush(Color.FromRgb(137, 220, 235)),
+                Padding = new Thickness(7, 2, 7, 2),
+                Margin = new Thickness(0),
+                ToolTip = "略過快取，重新呼叫本機 Ollama 生成新版教學解析",
+                Visibility = isOllamaActive ? Visibility.Visible : Visibility.Collapsed
+            };
+
+            accBtnPanel.Children.Add(copyNoteBtn);
+            accBtnPanel.Children.Add(refreshBtn);
+            Grid.SetColumn(accBtnPanel, 1);
+            accHeaderGrid.Children.Add(accBtnPanel);
+
+            accordionStack.Children.Add(accHeaderGrid);
+
+            // 使用無邊框透明唯讀 TextBox，支援滑鼠自由選取局部文字與 Ctrl+C 複製
+            var noteTextBox = new TextBox
+            {
+                Text = s.AiNote ?? "",
+                FontSize = 12.5,
+                Foreground = new SolidColorBrush(Color.FromRgb(205, 214, 244)),
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Padding = new Thickness(0, 2, 0, 2),
+                IsReadOnly = true,
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                SelectionBrush = new SolidColorBrush(Color.FromRgb(137, 180, 250)),
+                CaretBrush = new SolidColorBrush(Color.FromRgb(137, 180, 250)),
+                Cursor = Cursors.IBeam
+            };
+            accordionStack.Children.Add(noteTextBox);
+
+            accordionBorder.Child = accordionStack;
+            outerStack.Children.Add(accordionBorder);
+
+            copyNoteBtn.Click += (sender, e) =>
+            {
+                try
+                {
+                    string currentNote = s.AiNote != null ? s.AiNote.Trim() : "";
+                    if (string.IsNullOrEmpty(currentNote)) return;
+
+                    string textToCopy;
+                    if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                    {
+                        var lines = new List<string>();
+                        string cleanJp = rawJp != null ? rawJp.Trim() : "";
+                        string cleanTrans = s.Translation != null ? ChineseConverter.CleanGarbageChars(s.Translation).Trim() : "";
+                        if (!string.IsNullOrEmpty(cleanJp)) lines.Add(cleanJp);
+                        if (!string.IsNullOrEmpty(cleanTrans)) lines.Add(cleanTrans);
+                        lines.Add("----------------");
+                        lines.Add(currentNote);
+                        textToCopy = string.Join(Environment.NewLine, lines);
+                        TxtStatusBar.Text = "✅ 已將日文例句與 AI 深度解析一併複製至剪貼簿！";
+                    }
+                    else
+                    {
+                        textToCopy = currentNote;
+                        TxtStatusBar.Text = "✅ 已複製 AI 深度解析內容至剪貼簿！";
+                    }
+
+                    Clipboard.Clear();
+                    Clipboard.SetDataObject(textToCopy, true);
+
+                    copyNoteBtn.Content = "✓ 已複製";
+                    var resetTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1200) };
+                    resetTimer.Tick += (ts, te) =>
+                    {
+                        copyNoteBtn.Content = "📋 複製解析";
+                        resetTimer.Stop();
+                    };
+                    resetTimer.Start();
+                }
+                catch (Exception ex)
+                {
+                    TxtStatusBar.Text = "⚠️ 複製解析失敗: " + ex.Message;
+                }
+            };
+
+            // 單句解析非同步執行與持久化邏輯（策略 B：pykakasi 模式下嚴格阻斷 Ollama 推論）
+            Func<bool, Task> runExplainAsync = async (forceRefresh) =>
+            {
+                bool canCallOllama = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
+                                     (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+                if (!canCallOllama)
+                {
+                    TxtStatusBar.Text = "⚠️ 目前為本地形態素 (pykakasi) 模式，已禁止觸發 AI 推論。";
+                    return;
+                }
+
+                explainBtn.IsEnabled = false;
+                refreshBtn.IsEnabled = false;
+                copyNoteBtn.IsEnabled = false;
+                if (forceRefresh)
+                {
+                    refreshBtn.Content = "⏳ 重刷中...";
+                }
+                else
+                {
+                    explainBtn.Content = "⏳ 解析中...";
+                }
+
+                TxtStatusBar.Text = string.Format("正在呼叫本機 Ollama ({0}) 深度解析例句文法、結構與記憶口訣...", _ollamaService.CurrentModel);
+
+                try
+                {
+                    string note = await _ollamaService.ExplainSentenceAsync(s);
+                    if (!string.IsNullOrWhiteSpace(note))
+                    {
+                        s.AiNote = note;
+                        s.IsCustom = true;
+
+                        KanaRepository.SaveCustomSentences(_allSentences);
+                        UpdateStatusBar();
+
+                        noteTextBox.Text = note;
+                        accordionBorder.Visibility = Visibility.Visible;
+                        explainBtn.Content = "🔼 收合詳解";
+                        TxtStatusBar.Text = "✅ 已完成單句 AI 深度解析並快取至本機！";
+                    }
+                    else
+                    {
+                        TxtStatusBar.Text = "⚠️ Ollama 未回傳有效解析內容，請確認本機 Ollama 服務已啟動。";
+                        explainBtn.Content = string.IsNullOrWhiteSpace(s.AiNote) ? "🎓 詳解" : "🎓 查看筆記";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TxtStatusBar.Text = "⚠️ Ollama 單句解析失敗: " + ex.Message;
+                    explainBtn.Content = string.IsNullOrWhiteSpace(s.AiNote) ? "🎓 詳解" : "🎓 查看筆記";
+                }
+                finally
+                {
+                    explainBtn.IsEnabled = true;
+                    refreshBtn.IsEnabled = true;
+                    copyNoteBtn.IsEnabled = true;
+                    refreshBtn.Content = "🔄 重新刷新";
+                }
+            };
+
+            explainBtn.Click += async (sender, e) =>
+            {
+                if (accordionBorder.Visibility == Visibility.Visible)
+                {
+                    accordionBorder.Visibility = Visibility.Collapsed;
+                    explainBtn.Content = string.IsNullOrWhiteSpace(s.AiNote) ? "🎓 詳解" : "🎓 查看筆記";
+                    return;
+                }
+
+                if (!string.IsNullOrWhiteSpace(s.AiNote))
+                {
+                    noteTextBox.Text = s.AiNote;
+                    accordionBorder.Visibility = Visibility.Visible;
+                    explainBtn.Content = "🔼 收合詳解";
+                    return;
+                }
+
+                bool canCallOllama = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
+                                     (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+                if (!canCallOllama)
+                {
+                    TxtStatusBar.Text = "⚠️ 本地形態素 (pykakasi) 模式下無法生成新解析，請切換至本機 AI 助教 (Ollama)。";
+                    return;
+                }
+
+                await runExplainAsync(false);
+            };
+
+            refreshBtn.Click += async (sender, e) =>
+            {
+                await runExplainAsync(true);
+            };
+
+            card.Child = outerStack;
             return card;
         }
 
@@ -1600,12 +2216,13 @@ namespace KanaVox
             }
         }
 
-        // ================= 假名造句 / 精選例句（雙軌模式） =================
+        // ================= 假名造句 / 精選例句（依標音引擎切換，支援客製化情境與難度） =================
         private async void BtnAiSentence_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedKana == null) return;
 
-            bool isOllamaActive = (ChkEnableOllama.IsChecked == true);
+            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
+                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
 
             if (!isOllamaActive)
             {
@@ -1640,19 +2257,33 @@ namespace KanaVox
                 }
                 else
                 {
-                    TxtStatusBar.Text = string.Format("ℹ️ 本機資料庫暫無「{0}」的獨立預製例句，可勾選上方 AI 助教進行即時生成。", _selectedKana.Hiragana);
+                    TxtStatusBar.Text = string.Format("ℹ️ 本機資料庫暫無「{0}」的獨立預製例句，可切換為本機 AI 助教進行即時生成。", _selectedKana.Hiragana);
                 }
                 return;
             }
 
-            // 2. 啟用 AI 時，呼叫本機 Ollama 進行推論生成
+            // 2. 啟用 AI 時，動態讀取難度與情境輸入
+            string selectedTopic = (CmbAiTopic != null && !string.IsNullOrWhiteSpace(CmbAiTopic.Text))
+                ? CmbAiTopic.Text.Trim()
+                : "日常會話";
+
+            string selectedLevel = "N5";
+            if (CmbAiLevel != null && CmbAiLevel.SelectedItem != null)
+            {
+                var lvlItem = CmbAiLevel.SelectedItem as ComboBoxItem;
+                string lvlText = lvlItem != null ? lvlItem.Content.ToString() : CmbAiLevel.SelectedItem.ToString();
+                if (lvlText.Contains("N4")) selectedLevel = "N4";
+                else if (lvlText.Contains("N3")) selectedLevel = "N3";
+                else selectedLevel = "N5";
+            }
+
             BtnAiSentence.IsEnabled = false;
             BtnAiSentence.Content = "⏳ 生成中...";
-            TxtStatusBar.Text = string.Format("正在呼叫本機 Ollama ({0}) 生成「{1}」的初學例句...", _ollamaService.CurrentModel, _selectedKana.Hiragana);
+            TxtStatusBar.Text = string.Format("正在呼叫本機 Ollama ({0}) 依據【{1} / {2}】生成「{3}」的例句...", _ollamaService.CurrentModel, selectedTopic, selectedLevel, _selectedKana.Hiragana);
 
             try
             {
-                var newSentences = await _ollamaService.GenerateKanaSentencesAsync(_selectedKana);
+                var newSentences = await _ollamaService.GenerateKanaSentencesAsync(_selectedKana, selectedTopic, selectedLevel);
                 if (newSentences != null && newSentences.Count > 0)
                 {
                     foreach (var s in newSentences) s.IsCustom = true;
@@ -1667,7 +2298,7 @@ namespace KanaVox
                     CmbCategory.SelectedIndex = 0;
                     RenderFilteredSentences();
                     UpdateStatusBar();
-                    TxtStatusBar.Text = string.Format("✅ 已由 Ollama 生成 {0} 句例句，並儲存至 custom_sentences.json！", newSentences.Count);
+                    TxtStatusBar.Text = string.Format("✅ 已由 Ollama 生成 {0} 句【{1} ({2})】例句並儲存！", newSentences.Count, selectedTopic, selectedLevel);
                 }
                 else
                 {
@@ -1685,12 +2316,13 @@ namespace KanaVox
             }
         }
 
-        // ================= 假名記憶口訣（雙軌模式） =================
+        // ================= 假名記憶口訣（依標音引擎切換，支援自訂聯想風格） =================
         private async void BtnAiMnemonic_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedKana == null) return;
 
-            bool isOllamaActive = (ChkEnableOllama.IsChecked == true);
+            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
+                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
 
             if (!isOllamaActive)
             {
@@ -1702,15 +2334,19 @@ namespace KanaVox
                 return;
             }
 
-            // 啟用 AI 時呼叫 Ollama 推論
+            // 啟用 AI 時呼叫 Ollama 推論（將目前選定之情境風格作為聯想導引）
+            string selectedStyle = (CmbAiTopic != null && !string.IsNullOrWhiteSpace(CmbAiTopic.Text))
+                ? CmbAiTopic.Text.Trim()
+                : "生活聯想與字源";
+
             BtnAiMnemonic.IsEnabled = false;
             BtnAiMnemonic.Content = "⏳ 思考中...";
             BorderMnemonic.Visibility = Visibility.Visible;
-            TxtMnemonicContent.Text = string.Format("正在請教本機 Ollama ({0}) 關於「{1} / {2} ({3})」的記憶口訣...", _ollamaService.CurrentModel, _selectedKana.Hiragana, _selectedKana.Katakana, _selectedKana.Romaji);
+            TxtMnemonicContent.Text = string.Format("正在請教本機 Ollama ({0}) 關於「{1} / {2} ({3})」的記憶口訣 (風格:{4})...", _ollamaService.CurrentModel, _selectedKana.Hiragana, _selectedKana.Katakana, _selectedKana.Romaji, selectedStyle);
 
             try
             {
-                string tip = await _ollamaService.GenerateMnemonicAsync(_selectedKana);
+                string tip = await _ollamaService.GenerateMnemonicAsync(_selectedKana, selectedStyle);
                 if (!string.IsNullOrWhiteSpace(tip))
                 {
                     TxtMnemonicContent.Text = tip;
@@ -1732,19 +2368,32 @@ namespace KanaVox
             }
         }
 
-        // ================= 自訂句子振假名解析（雙軌模式） =================
+        // ================= 自訂句子振假名解析（依標音引擎切換，含斷線自動自癒） =================
         private async void BtnAiAnalyzeCustom_Click(object sender, RoutedEventArgs e)
         {
             string rawText = TxtCustomTts.Text != null ? TxtCustomTts.Text.Trim() : "";
             if (string.IsNullOrEmpty(rawText)) return;
 
-            bool isOllamaActive = (ChkEnableOllama.IsChecked == true);
+            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
+                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
 
             BtnAiAnalyzeCustom.IsEnabled = false;
             BtnAiAnalyzeCustom.Content = "⏳ 解析中...";
 
             if (!isOllamaActive)
             {
+                // 防線：若背景代理尚未在線，由 C# 主動喚醒並等待就緒
+                if (!_audioService.IsProxyOnline)
+                {
+                    TxtStatusBar.Text = "⚡ 正在喚醒本地形態素服務 (Port 5050)...";
+                    StartProxyProcess();
+                    for (int w = 0; w < 8; w++)
+                    {
+                        await Task.Delay(500);
+                        if (await _audioService.CheckProxyHealthAsync()) break;
+                    }
+                }
+
                 // 1. 本地形態素分析 (pykakasi / 0ms)
                 TxtStatusBar.Text = "正在透過本地形態素引擎分析漢字振假名與拼音...";
                 try
@@ -1767,7 +2416,7 @@ namespace KanaVox
                     }
                     else
                     {
-                        TxtStatusBar.Text = "⚠️ 本地解析失敗，請確認本機語音代理 (Port 5050) 已啟動並安裝 pykakasi。";
+                        TxtStatusBar.Text = "⚠️ 本地解析失敗，請確認本地代理 (Port 5050) 是否啟動。";
                     }
                 }
                 catch (Exception ex)
@@ -1841,6 +2490,11 @@ namespace KanaVox
             if (CmbOllamaModel.SelectedItem != null && _ollamaService != null)
             {
                 _ollamaService.CurrentModel = CmbOllamaModel.SelectedItem.ToString();
+                _savedOllamaModel = _ollamaService.CurrentModel;
+                if (_isUiInitialized)
+                {
+                    UpdateStatusBar();
+                }
             }
         }
 
@@ -1934,7 +2588,6 @@ namespace KanaVox
         {
             try
             {
-                // 一鍵複製標準環境安裝指令
                 string cmd = "pip install edge-tts aiohttp pykakasi";
                 Clipboard.Clear();
                 Clipboard.SetDataObject(cmd, true);
@@ -1984,27 +2637,29 @@ namespace KanaVox
         private void UpdateStatusBar()
         {
             int customCount = _allSentences.Count(s => s.IsCustom);
-            string wavInfo = _audioService.LoadedWavCount > 0
-                ? string.Format("音訊：預載 {0} 個離線 WAV", _audioService.LoadedWavCount)
-                : "音訊：即時朗讀模式（未載入離線音檔）";
-
             string customInfo = string.Format("自訂例句：{0} 句", customCount);
 
+            // 1. 發音引擎狀態判定
             string ttsInfo;
-            if (_audioService.IsProxyOnline)
+            if (_audioService.CurrentEngine == TtsEngineMode.Sapi)
             {
-                ttsInfo = "TTS：Edge-TTS 神經網路代理 (在線 / Nanami)";
-            }
-            else if (_audioService.HasJapaneseTts)
-            {
-                ttsInfo = string.Format("TTS：系統 SAPI ({0})", _audioService.ActiveVoiceName);
+                ttsInfo = string.Format("發音：系統 SAPI ({0})", _audioService.ActiveVoiceName);
             }
             else
             {
-                ttsInfo = "TTS：未偵測到任何語音引擎";
+                ttsInfo = _audioService.IsProxyOnline 
+                    ? "發音：Edge-TTS (Nanami 在線)" 
+                    : "發音：Edge-TTS (代理離線，自動回退 SAPI)";
             }
 
-            TxtStatusBar.Text = wavInfo + "   |   " + customInfo + "   |   " + ttsInfo;
+            // 2. 標音解析引擎狀態判定
+            bool isOllamaActive = (CmbAnalysisEngine != null && CmbAnalysisEngine.SelectedIndex == 1) ||
+                                 (ChkEnableOllama != null && ChkEnableOllama.IsChecked == true);
+            string analysisInfo = isOllamaActive
+                ? string.Format("標音：Ollama ({0})", _ollamaService.CurrentModel)
+                : "標音：本地形態素 (pykakasi)";
+
+            TxtStatusBar.Text = customInfo + "   |   " + ttsInfo + "   |   " + analysisInfo;
         }
 
         protected override void OnClosed(EventArgs e)
